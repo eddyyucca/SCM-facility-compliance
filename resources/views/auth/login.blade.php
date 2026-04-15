@@ -10,21 +10,21 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700" rel="stylesheet" />
     <style>
         :root {
-            --bg: #f4efe7;
-            --brand: #8f4f22;
-            --brand-d: #6d3b17;
-            --line: #ddd0be;
-            --text: #2f241c;
-            --muted: #6d5b4c;
+            --bg: #edf4ff;
+            --brand: #0d6efd;
+            --brand-d: #0a58ca;
+            --line: #d8e5fb;
+            --text: #1b2a46;
+            --muted: #6d7f9d;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Figtree', sans-serif;
             min-height: 100vh;
             background:
-                radial-gradient(circle at top left, rgba(233,201,165,.65), transparent 32%),
-                radial-gradient(circle at bottom right, rgba(143,79,34,.14), transparent 28%),
-                linear-gradient(180deg, #f7f2eb 0%, var(--bg) 100%);
+                radial-gradient(circle at top left, rgba(116,180,255,.35), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(13,110,253,.16), transparent 28%),
+                linear-gradient(180deg, #f6faff 0%, var(--bg) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -37,7 +37,7 @@
             border: 1px solid var(--line);
             border-radius: 24px;
             padding: 36px 32px;
-            box-shadow: 0 24px 60px rgba(93,64,38,.13);
+            box-shadow: 0 24px 60px rgba(13,110,253,.12);
         }
         .brand {
             text-align: center;
@@ -73,14 +73,14 @@
             border-radius: 12px;
             font: inherit;
             font-size: .95rem;
-            background: #fffdf9;
+            background: #f8fbff;
             color: var(--text);
             transition: border-color .2s, box-shadow .2s;
         }
         .field input:focus {
             outline: none;
             border-color: var(--brand);
-            box-shadow: 0 0 0 3px rgba(143,79,34,.1);
+            box-shadow: 0 0 0 3px rgba(13,110,253,.12);
         }
         .remember {
             display: flex;
@@ -101,7 +101,7 @@
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(109,59,23,.2);
+            box-shadow: 0 8px 20px rgba(13,110,253,.22);
             transition: filter .2s;
         }
         .btn-login:hover { filter: brightness(1.05); }
@@ -117,7 +117,7 @@
         .demo-hint {
             margin-top: 24px;
             padding: 14px;
-            background: #fdf8f3;
+            background: #f4f8ff;
             border: 1px solid var(--line);
             border-radius: 12px;
             font-size: .78rem;
@@ -162,13 +162,12 @@
 
     <a href="{{ url('/') }}" class="back-link">Kembali ke Form Laporan</a>
 
-    <div class="demo-hint">
+    <!-- <div class="demo-hint">
         <strong>Akun Demo:</strong><br>
         superadmin@ga.com | hk@ga.com<br>
         receptionist@ga.com | laundry@ga.com<br>
         Password semua: <strong>password123</strong>
-    </div>
+    </div> -->
 </div>
 </body>
 </html>
-

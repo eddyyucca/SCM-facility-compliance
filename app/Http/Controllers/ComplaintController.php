@@ -3,19 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Models\Complaint;
+use App\Services\WhatsappService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ComplaintController extends Controller
 {
+    public function __construct(private WhatsappService $whatsappService)
+    {
+    }
+
     // Public: store a new complaint (no auth required)
     public function store(Request $request)
     {
+        if ($request->input('building') === '__other__') {
+            $request->merge([
+                'building' => trim((string) $request->input('building_other')),
+            ]);
+        }
+
         $type = $request->input('type');
 
         $rules = [
             'type'          => 'required|in:receptionist,hk,laundry',
             'building'      => 'required|string|max:100',
+            'building_other'=> 'nullable|string|max:100',
             'reporter_name' => 'required|string|max:100',
             'reporter_wa'   => 'nullable|string|max:20',
             'description'   => 'required|string|max:2000',
@@ -33,8 +46,17 @@ class ComplaintController extends Controller
         $data['ticket_number'] = Complaint::generateTicket($type);
         $data['sla_deadline']  = Complaint::computeSlaDeadline($type, 'sedang');
         $data['status']        = 'open';
+        unset($data['building_other']);
 
-        Complaint::create($data);
+        $complaint = Complaint::create($data);
+
+        $waResult = $this->whatsappService->sendComplaintToGroup($complaint);
+        if (!$waResult['success']) {
+            Log::warning('Complaint created but WhatsApp group notification failed.', [
+                'ticket_number' => $complaint->ticket_number,
+                'response' => $waResult['response'],
+            ]);
+        }
 
         // Redirect to QR success page (ticket stored in session)
         return redirect()->route('ticket.success')

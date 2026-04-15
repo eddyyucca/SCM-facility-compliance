@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@11.2.1/public/assets/styles/choices.min.css">
     <style>
         :root {
             --primary:#0d6efd; --primary-d:#0a58ca; --primary-l:#e7f0ff;
@@ -48,6 +49,38 @@
         .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(13,110,253,.1);background:#fff;}
         .field textarea{min-height:120px;resize:vertical;}
         .field .hint{font-size:.75rem;color:var(--muted);}
+        .choices{margin-bottom:0;}
+        .choices__inner{
+            min-height:auto;
+            padding:4px 10px !important;
+            border:1.5px solid var(--line) !important;
+            border-radius:10px !important;
+            background:#fafcff !important;
+            font-size:.9rem;
+        }
+        .is-focused .choices__inner,
+        .is-open .choices__inner{
+            border-color:var(--primary) !important;
+            box-shadow:0 0 0 3px rgba(13,110,253,.1);
+            background:#fff !important;
+        }
+        .choices__input{
+            background:transparent !important;
+            margin-bottom:0 !important;
+            font-size:.9rem !important;
+        }
+        .choices__list--dropdown,
+        .choices__list[aria-expanded]{
+            border:1px solid var(--line) !important;
+            border-radius:10px !important;
+            box-shadow:0 10px 24px rgba(13,110,253,.08);
+        }
+        .choices__list--dropdown .choices__item--selectable.is-highlighted,
+        .choices__list[aria-expanded] .choices__item--selectable.is-highlighted{
+            background:#eef5ff !important;
+            color:#0d6efd !important;
+        }
+        .building-other-wrap{display:none;margin-top:8px;}
         .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
         .alert-err{padding:12px 15px;border-radius:10px;background:var(--red-l);border:1px solid #f1aeb5;color:#842029;font-size:.85rem;margin-bottom:14px;}
         .btn-submit{width:100%;padding:13px;background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff;border:none;border-radius:11px;font:inherit;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(13,110,253,.28);transition:filter .2s;}
@@ -120,21 +153,26 @@
 
             <div class="field">
                 <label>Bangunan / Area <span class="req">*</span></label>
-                <input type="text"
-                       name="building"
-                       id="building-input"
-                       list="building-list"
-                       value="{{ old('building') }}"
-                       placeholder="Ketik atau pilih nama bangunan..."
-                       required autocomplete="off">
-                <datalist id="building-list">
-                    @foreach(config('buildings', []) as $group => $items)
-                        @foreach($items as $b)
-                        <option value="{{ $b }}">{{ $group }}</option>
-                        @endforeach
+                @php
+                    $buildingOptions = collect(config('buildings', []))->flatten()->unique()->sort()->values();
+                    $oldBuilding = old('building');
+                    $isOtherBuilding = filled($oldBuilding) && !$buildingOptions->contains($oldBuilding);
+                @endphp
+                <select id="building-select" name="building" required onchange="toggleBuildingOther(this.value)">
+                    <option value="">-- Pilih Bangunan / Area --</option>
+                    @foreach($buildingOptions as $b)
+                        <option value="{{ $b }}" @selected($oldBuilding === $b)>{{ $b }}</option>
                     @endforeach
-                </datalist>
-                <span class="hint">Ketik untuk mencari atau pilih dari daftar. Bisa diisi bebas jika bangunan belum ada di daftar.</span>
+                    <option value="__other__" @selected($isOtherBuilding)>Lainnya</option>
+                </select>
+                <div class="building-other-wrap" id="building-other-wrap" style="{{ $isOtherBuilding ? 'display:block;' : '' }}">
+                    <input type="text"
+                           id="building-other"
+                           name="building_other"
+                           value="{{ $isOtherBuilding ? $oldBuilding : '' }}"
+                           placeholder="Tulis nama bangunan / area lainnya">
+                </div>
+                <span class="hint">Pilih bangunan dari daftar. Jika belum ada, pilih <strong>Lainnya</strong> lalu isi manual.</span>
             </div>
 
             <div class="field" id="field-room" style="{{ in_array(old('type',''), ['receptionist','laundry']) ? '' : 'display:none' }}">
@@ -162,7 +200,7 @@
                 <textarea name="description" id="desc-area"
                           placeholder="Ceritakan masalah yang Anda alami secara detail..."
                           required>{{ old('description') }}</textarea>
-                <span class="hint"><i class="fas fa-info-circle mr-1"></i>Semakin detail, semakin cepat tim menangani laporan ini.</span>
+                <span class="hint"><i class="fas fa-info-circle mr-1"></i>Cukup detailkan masalah yang ada.</span>
             </div>
 
             <button type="submit" class="btn-submit">
@@ -212,12 +250,30 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 @endif
 
+<script src="https://cdn.jsdelivr.net/npm/choices.js@11.2.1/public/assets/scripts/choices.min.js"></script>
 <script>
 function switchTab(id, el) {
     document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('section-' + id).classList.add('active');
+}
+
+function toggleBuildingOther(value) {
+    const otherWrap = document.getElementById('building-other-wrap');
+    const otherInput = document.getElementById('building-other');
+
+    if (!otherWrap || !otherInput) return;
+
+    if (value === '__other__') {
+        otherWrap.style.display = 'block';
+        otherInput.required = true;
+        otherInput.focus();
+    } else {
+        otherWrap.style.display = 'none';
+        otherInput.required = false;
+        otherInput.value = '';
+    }
 }
 
 function onTypeChange(type) {
@@ -250,6 +306,23 @@ function onTypeChange(type) {
 document.addEventListener('DOMContentLoaded', () => {
     const sel = document.getElementById('type-select');
     if (sel.value) onTypeChange(sel.value);
+
+    const buildingSelect = document.getElementById('building-select');
+    if (buildingSelect) {
+        new Choices(buildingSelect, {
+            searchEnabled: true,
+            searchChoices: true,
+            shouldSort: false,
+            itemSelectText: '',
+            placeholder: true,
+            placeholderValue: 'Cari atau pilih nama bangunan...',
+            searchPlaceholderValue: 'Ketik nama bangunan...',
+            noResultsText: 'Bangunan tidak ditemukan',
+            noChoicesText: 'Tidak ada pilihan bangunan',
+        });
+
+        toggleBuildingOther(buildingSelect.value);
+    }
 });
 
 async function cekTiket() {
