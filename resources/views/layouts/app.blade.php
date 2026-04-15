@@ -13,7 +13,7 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('icons/icon-192.png') }}">
-    <title>@yield('title', 'SCM')  Complaint Management</title>
+    <title>@yield('title', 'SCM Complaint Management')</title>
 
     {{-- Font --}}
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -28,7 +28,7 @@
     <style>
         body { font-family: 'Figtree', sans-serif !important; background-color: #eef2f7 !important; }
 
-        /* â”€â”€ Brand / Sidebar â”€â”€ */
+        /* Brand / Sidebar */
         .main-sidebar { background: #0a1628 !important; }
         .brand-link    { background: #061020 !important; border-bottom: 1px solid rgba(255,255,255,.06) !important; }
         .brand-link .brand-text { color: #fff !important; font-weight: 700 !important; font-size: 1rem !important; }
@@ -114,7 +114,10 @@
         .nav-sidebar .nav-header { color: rgba(255,255,255,.3) !important; font-size: .68rem !important; }
 
         /* User panel at bottom */
-        .sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.07); }
+        /* Sidebar flex agar footer selalu di bawah */
+        .main-sidebar .sidebar { display: flex; flex-direction: column; height: calc(100% - 57px); }
+        .main-sidebar .sidebar nav { flex: 1; overflow-y: auto; }
+        .sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.07); flex-shrink: 0; }
         .sidebar-footer .user-name { color: #fff; font-weight: 600; font-size: .85rem; }
         .sidebar-footer .user-role {
             display: inline-block; margin-top: 3px; padding: 2px 9px;
@@ -130,7 +133,7 @@
         }
         .sidebar-footer .btn-logout:hover { background: rgba(255,255,255,.08); color: #fff; }
 
-        /* â”€â”€ Navbar â”€â”€ */
+        /* Navbar */
         .main-header.navbar {
             background: #fff !important;
             border-bottom: 1px solid #e3eaf4 !important;
@@ -139,7 +142,7 @@
         .main-header .navbar-brand { color: #0a1628 !important; font-weight: 700; }
         .nav-item .nav-link { color: #4a5568 !important; }
 
-        /* â”€â”€ Notification bell â”€â”€ */
+        /* Notification bell */
         #notif-bell { position: relative; }
         #notif-bell .notif-count {
             position: absolute; top: 2px; right: 2px;
@@ -172,13 +175,13 @@
         #sound-toggle:hover { background: #f0f4f8; }
         #sound-toggle.muted { color: #aaa; }
 
-        /* â”€â”€ Content area â”€â”€ */
+        /* Content area — min-height dibiarkan AdminLTE JS yang hitung */
         .content-wrapper { background: #eef2f7 !important; }
-        .content-header { padding: 16px 24px 0 !important; }
-        .content-header h1 { font-size: 1.25rem !important; font-weight: 700 !important; }
-        .content { padding: 16px 24px 24px !important; }
+        .content-header { padding: 12px 20px 0 !important; }
+        .content-header h1 { font-size: 1.2rem !important; font-weight: 700 !important; }
+        .content { padding: 12px 20px 20px !important; }
 
-        /* â”€â”€ Cards â”€â”€ */
+        /* Cards */
         .card {
             border: none !important;
             border-radius: 14px !important;
@@ -191,11 +194,11 @@
         .card-warning > .card-header { background: #ffc107 !important; color: #212529 !important; }
         .card-danger  > .card-header { background: #dc3545 !important; }
 
-        /* â”€â”€ Info boxes / Small boxes â”€â”€ */
+        /* Info boxes / Small boxes */
         .small-box { border-radius: 14px !important; }
         .small-box:hover { filter: brightness(1.03); }
 
-        /* â”€â”€ Tabs â”€â”€ */
+        /* Tabs */
         .nav-tabs .nav-link {
             border-radius: 10px 10px 0 0 !important;
             font-weight: 600 !important; font-size: .88rem !important;
@@ -207,7 +210,7 @@
             border-radius: 0 0 14px 14px; padding: 20px;
         }
 
-        /* â”€â”€ Badges â”€â”€ */
+        /* Badges */
         .badge-urgent  { background: #dc3545 !important; color: #fff !important; }
         .badge-high    { background: #fd7e14 !important; color: #fff !important; }
         .badge-medium  { background: #0d6efd !important; color: #fff !important; }
@@ -219,13 +222,13 @@
         .type-hk   { background: #d1e7dd !important; color: #0f5132 !important; }
         .type-ldy  { background: #fff3cd !important; color: #664d03 !important; }
 
-        /* â”€â”€ Table â”€â”€ */
+        /* Table */
         .table th { font-size: .78rem !important; text-transform: uppercase; letter-spacing: .04em; color: #6c757d; font-weight: 700; white-space: nowrap; }
         .table td { vertical-align: middle !important; }
         .ticket-link { color: #0d6efd; font-weight: 700; text-decoration: none; }
         .ticket-link:hover { text-decoration: underline; }
 
-        /* â”€â”€ Date filter bar â”€â”€ */
+        /* Date filter bar */
         .date-filter-bar {
             display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
             padding: 14px 18px; background: #fff;
@@ -238,10 +241,10 @@
             border: 1px solid #dee2e6; border-radius: 8px;
         }
 
-        /* â”€â”€ Overdue row â”€â”€ */
+        /* Overdue row */
         tr.overdue td { background: #fff5f5 !important; }
 
-        /* â”€â”€ Toast notification â”€â”€ */
+        /* Toast notification */
         #toast-container {
             position: fixed; top: 70px; right: 20px; z-index: 9999;
             display: flex; flex-direction: column; gap: 8px;
@@ -262,21 +265,92 @@
         .notif-toast .toast-close  { background: none; border: none; cursor: pointer; color: #aaa; font-size: .9rem; }
         @keyframes slideIn { from { transform: translateX(30px); opacity:0; } to { transform: translateX(0); opacity:1; } }
 
-        /* â”€â”€ Responsive â”€â”€ */
+        .photo-thumb-button {
+            border: 0;
+            padding: 0;
+            background: transparent;
+            cursor: pointer;
+        }
+        .photo-thumb-image {
+            width: 64px;
+            height: 64px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #dce5f2;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, .08);
+            transition: transform .18s ease, box-shadow .18s ease;
+        }
+        .photo-thumb-button:hover .photo-thumb-image {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(15, 23, 42, .12);
+        }
+        .photo-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #e8f1ff;
+            color: #0d6efd;
+            font-size: .74rem;
+            font-weight: 700;
+        }
+
+        .photo-lightbox .modal-content {
+            background: #0b1220;
+            border: 0;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+        .photo-lightbox .modal-header {
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            color: #fff;
+        }
+        .photo-lightbox .modal-body {
+            padding: 12px;
+            text-align: center;
+            background: radial-gradient(circle at top, rgba(13,110,253,.18), transparent 48%), #0b1220;
+        }
+        .photo-lightbox .modal-body img {
+            width: 100%;
+            max-height: 74vh;
+            object-fit: contain;
+            border-radius: 14px;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
             .content { padding: 12px !important; }
             .tab-content { padding: 12px; }
+            .main-footer { padding: 14px 16px !important; }
+            .footer-meta { text-align: left; }
         }
     </style>
     @stack('styles')
 </head>
-<body class="hold-transition sidebar-mini layout-fixed sidebar-collapse">
+<body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
 
 {{-- Toast container --}}
 <div id="toast-container"></div>
 
-{{-- â”€â”€ Navbar â”€â”€ --}}
+<div class="modal fade photo-lightbox" id="photoLightboxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="photoLightboxTitle">Foto Lampiran</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <img id="photoLightboxImage" src="" alt="Preview foto laporan">
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Navbar --}}
 <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <ul class="navbar-nav">
         <li class="nav-item">
@@ -317,7 +391,7 @@
                 <a href="{{ route('complaints.index') }}"
                    class="dropdown-item text-center py-2"
                    style="font-size:.82rem;font-weight:600;color:#0d6efd;border-top:1px solid #e9ecef;">
-                    Lihat Semua Laporan â†’
+                    Lihat Semua Laporan <i class="fas fa-arrow-right ml-1"></i>
                 </a>
             </div>
         </li>
@@ -347,7 +421,7 @@
     </ul>
 </nav>
 
-{{-- â”€â”€ Sidebar â”€â”€ --}}
+{{-- Sidebar --}}
 <aside class="main-sidebar sidebar-dark-primary elevation-0">
     <a href="{{ route('dashboard') }}" class="brand-link px-3">
         <span class="brand-text brand-logo-wrap">
@@ -446,12 +520,21 @@
             </ul>
         </nav>
 
-        {{-- Sidebar footer --}}
-      
+        {{-- Sidebar footer: user info --}}
+        <div class="sidebar-footer">
+            <div class="user-name">{{ Auth::user()->name }}</div>
+            <span class="user-role">{{ ucfirst(Auth::user()->role) }}</span>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="btn-logout">
+                    <i class="fas fa-sign-out-alt mr-1"></i> Keluar
+                </button>
+            </form>
+        </div>
     </div>
 </aside>
 
-{{-- â”€â”€ Content Wrapper â”€â”€ --}}
+{{-- Content Wrapper --}}
 <div class="content-wrapper">
     <div class="content-header">
         <div class="container-fluid">
@@ -507,7 +590,7 @@
 </footer>
 </div>{{-- /wrapper --}}
 
-{{-- â”€â”€ Scripts â”€â”€ --}}
+{{-- Scripts --}}
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/js/adminlte.min.js"></script>
@@ -515,7 +598,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
-// â”€â”€ Notification polling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Notification polling
 let soundEnabled = localStorage.getItem('ga_sound') !== 'false';
 let lastCheckTs  = new Date().toISOString();
 let pendingCount = 0;
@@ -559,14 +642,14 @@ function showToast(title, text, type='info') {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = 'notif-toast' + (type === 'warning' ? ' toast-warning' : '');
-    const icons = { info: 'ðŸ””', warning: 'âš ï¸', success: 'âœ…' };
+    const icons = { info: '<i class="fas fa-bell text-primary"></i>', warning: '<i class="fas fa-exclamation-triangle text-warning"></i>', success: '<i class="fas fa-check-circle text-success"></i>' };
     toast.innerHTML = `
-        <span class="toast-icon">${icons[type] || 'ðŸ””'}</span>
+        <span class="toast-icon">${icons[type] || '<i class="fas fa-bell text-primary"></i>'}</span>
         <div class="toast-body">
             <div class="toast-title">${title}</div>
             <div class="toast-text">${text}</div>
         </div>
-        <button class="toast-close" onclick="this.closest('.notif-toast').remove()">âœ•</button>`;
+        <button class="toast-close" onclick="this.closest('.notif-toast').remove()">x</button>`;
     container.prepend(toast);
     setTimeout(() => toast.remove(), 7000);
 }
@@ -577,12 +660,12 @@ function renderNotifList(complaints) {
         list.innerHTML = '<div class="notif-empty">Tidak ada notifikasi baru</div>';
         return;
     }
-    const typeIcon = { receptionist: 'ðŸ›Žï¸', hk: 'ðŸ§¹', laundry: 'ðŸ‘•' };
+    const typeIcon = { receptionist: '<i class="fas fa-concierge-bell"></i>', hk: '<i class="fas fa-broom"></i>', laundry: '<i class="fas fa-tshirt"></i>' };
     const typeBg   = { receptionist: '#cfe2ff', hk: '#d1e7dd', laundry: '#fff3cd' };
     list.innerHTML = complaints.map(c => `
         <div class="notif-item-row" onclick="window.location='/complaints/${c.id}'">
             <div class="notif-item-icon" style="background:${typeBg[c.type] || '#e9ecef'};">
-                ${typeIcon[c.type] || 'ðŸ“‹'}
+                ${typeIcon[c.type] || '<i class="fas fa-clipboard-list"></i>'}
             </div>
             <div style="flex:1;min-width:0;">
                 <div style="font-weight:700;font-size:.82rem;">${c.ticket_number}</div>
@@ -620,7 +703,7 @@ async function pollNotifications() {
                     const typeLabel = { receptionist: 'Resepsionis', hk: 'Housekeeping', laundry: 'Laundry' }[c.type] || c.type;
                     showToast(
                         `Laporan Baru  ${c.ticket_number}`,
-                        `${typeLabel} Â· ${c.reporter_name}`,
+                        `${typeLabel} · ${c.reporter_name}`,
                         'info'
                     );
                 }, i * 400);
@@ -644,6 +727,32 @@ setTimeout(pollNotifications, 5000);
 setInterval(pollNotifications, 30000);
 </script>
 <script>
+document.addEventListener('click', (event) => {
+    const trigger = event.target.closest('[data-photo-preview]');
+
+    if (!trigger) {
+        return;
+    }
+
+    event.preventDefault();
+
+    const modal = $('#photoLightboxModal');
+    const image = document.getElementById('photoLightboxImage');
+    const title = document.getElementById('photoLightboxTitle');
+
+    image.src = trigger.getAttribute('data-photo-src') || '';
+    image.alt = trigger.getAttribute('data-photo-title') || 'Preview foto laporan';
+    title.textContent = trigger.getAttribute('data-photo-title') || 'Foto Lampiran';
+
+    modal.modal('show');
+});
+
+$('#photoLightboxModal').on('hidden.bs.modal', function () {
+    const image = document.getElementById('photoLightboxImage');
+    image.src = '';
+});
+</script>
+<script>
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('{{ asset('sw.js') }}').catch(() => {});
@@ -653,4 +762,3 @@ if ('serviceWorker' in navigator) {
 @stack('scripts')
 </body>
 </html>
-

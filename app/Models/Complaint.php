@@ -9,14 +9,16 @@ class Complaint extends Model
 {
     protected $fillable = [
         'ticket_number', 'type', 'reporter_name', 'reporter_wa',
+        'company_name', 'job_title',
         'department', 'building', 'room_number', 'location',
-        'category', 'priority', 'status', 'description',
+        'category', 'priority', 'status', 'description', 'photos',
         'admin_notes', 'sla_deadline', 'resolved_at',
     ];
 
     protected $casts = [
         'sla_deadline' => 'datetime',
         'resolved_at'  => 'datetime',
+        'photos'       => 'array',
     ];
 
     // SLA in hours per type + priority
@@ -34,11 +36,25 @@ class Complaint extends Model
             'laundry'      => 'LDY',
             default        => 'GEN',
         };
-        $date  = now()->format('Ymd');
-        $count = self::whereDate('created_at', today())
-                     ->where('type', $type)
-                     ->count() + 1;
-        return sprintf('%s-%s-%04d', $prefix, $date, $count);
+
+        $latestTicket = self::query()
+            ->where('ticket_number', 'like', $prefix . '-%')
+            ->orderByDesc('id')
+            ->value('ticket_number');
+
+        $nextNumber = 1;
+
+        if ($latestTicket && preg_match('/^' . preg_quote($prefix, '/') . '-(?:\d{8}-)?(\d{4})$/', $latestTicket, $matches)) {
+            $nextNumber = ((int) $matches[1]) + 1;
+        }
+
+        do {
+            $ticket = sprintf('%s-%04d', $prefix, $nextNumber);
+            $exists = self::where('ticket_number', $ticket)->exists();
+            $nextNumber++;
+        } while ($exists);
+
+        return $ticket;
     }
 
     public static function computeSlaDeadline(string $type, string $priority): Carbon

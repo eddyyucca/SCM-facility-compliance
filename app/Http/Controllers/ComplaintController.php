@@ -23,15 +23,26 @@ class ComplaintController extends Controller
             ]);
         }
 
+        if ($request->input('company_name') === '__other__') {
+            $request->merge([
+                'company_name' => trim((string) $request->input('company_other')),
+            ]);
+        }
+
         $type = $request->input('type');
 
         $rules = [
             'type'          => 'required|in:receptionist,hk,laundry',
             'building'      => 'required|string|max:100',
+            'company_name'  => 'required|string|max:150',
             'building_other'=> 'nullable|string|max:100',
+            'company_other' => 'nullable|string|max:150',
             'reporter_name' => 'required|string|max:100',
             'reporter_wa'   => 'nullable|string|max:20',
+            'job_title'     => 'nullable|string|max:100',
             'description'   => 'required|string|max:2000',
+            'photos'        => 'nullable|array|max:6',
+            'photos.*'      => 'image|mimes:jpg,jpeg,png,webp|max:5120',
         ];
 
         if ($type === 'receptionist') {
@@ -46,7 +57,14 @@ class ComplaintController extends Controller
         $data['ticket_number'] = Complaint::generateTicket($type);
         $data['sla_deadline']  = Complaint::computeSlaDeadline($type, 'sedang');
         $data['status']        = 'open';
-        unset($data['building_other']);
+        unset($data['building_other'], $data['company_other']);
+
+        if ($request->hasFile('photos')) {
+            $data['photos'] = collect($request->file('photos'))
+                ->map(fn ($file) => $file->store('complaints', 'public'))
+                ->values()
+                ->all();
+        }
 
         $complaint = Complaint::create($data);
 
@@ -85,6 +103,8 @@ class ComplaintController extends Controller
                 $q->where('ticket_number', 'like', "%$s%")
                   ->orWhere('reporter_name', 'like', "%$s%")
                   ->orWhere('reporter_wa', 'like', "%$s%")
+                  ->orWhere('company_name', 'like', "%$s%")
+                  ->orWhere('job_title', 'like', "%$s%")
                   ->orWhere('building', 'like', "%$s%")
                   ->orWhere('description', 'like', "%$s%");
             });

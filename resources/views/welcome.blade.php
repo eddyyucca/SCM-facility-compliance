@@ -81,6 +81,84 @@
             color:#0d6efd !important;
         }
         .building-other-wrap{display:none;margin-top:8px;}
+        .photo-upload-box{
+            position:relative;
+            border:2px dashed #c8d3e3;
+            border-radius:16px;
+            background:linear-gradient(180deg,#fbfdff 0%,#f4f8ff 100%);
+            min-height:126px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            text-align:center;
+            padding:20px;
+            cursor:pointer;
+            transition:border-color .18s ease, background .18s ease, box-shadow .18s ease;
+        }
+        .photo-upload-box:hover,
+        .photo-upload-box.is-dragover{
+            border-color:var(--primary);
+            background:linear-gradient(180deg,#f8fbff 0%,#edf4ff 100%);
+            box-shadow:0 0 0 4px rgba(13,110,253,.08);
+        }
+        .photo-upload-box input[type=file]{
+            position:absolute;
+            inset:0;
+            opacity:0;
+            cursor:pointer;
+        }
+        .photo-upload-copy{
+            display:grid;
+            gap:8px;
+            pointer-events:none;
+        }
+        .photo-upload-icon{
+            width:44px;
+            height:44px;
+            margin:0 auto;
+            border-radius:999px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background:#e8f1ff;
+            color:var(--primary);
+            font-size:1.1rem;
+        }
+        .photo-upload-title{
+            font-size:1rem;
+            font-weight:700;
+            color:#355070;
+        }
+        .photo-upload-sub{
+            font-size:.78rem;
+            color:var(--muted);
+        }
+        .photo-preview-grid{
+            display:grid;
+            grid-template-columns:repeat(auto-fill,minmax(110px,1fr));
+            gap:12px;
+            margin-top:12px;
+        }
+        .photo-preview-card{
+            border:1px solid var(--line);
+            border-radius:14px;
+            overflow:hidden;
+            background:#fff;
+            box-shadow:0 8px 24px rgba(13,110,253,.08);
+        }
+        .photo-preview-card img{
+            width:100%;
+            height:100px;
+            object-fit:cover;
+            display:block;
+        }
+        .photo-preview-meta{
+            padding:8px 10px;
+            font-size:.72rem;
+            color:var(--muted);
+            line-height:1.35;
+            background:#f8fbff;
+        }
         .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
         .alert-err{padding:12px 15px;border-radius:10px;background:var(--red-l);border:1px solid #f1aeb5;color:#842029;font-size:.85rem;margin-bottom:14px;}
         .btn-submit{width:100%;padding:13px;background:linear-gradient(135deg,var(--primary),var(--primary-d));color:#fff;border:none;border-radius:11px;font:inherit;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(13,110,253,.28);transition:filter .2s;}
@@ -138,7 +216,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('complaint.store') }}">
+        <form method="POST" action="{{ route('complaint.store') }}" enctype="multipart/form-data">
             @csrf
 
             <div class="field">
@@ -154,7 +232,11 @@
             <div class="field">
                 <label>Bangunan / Area <span class="req">*</span></label>
                 @php
-                    $buildingOptions = collect(config('buildings', []))->flatten()->unique()->sort()->values();
+                    $buildingOptions = collect(config('buildings', []))
+                        ->flatten()
+                        ->unique()
+                        ->sort(SORT_NATURAL | SORT_FLAG_CASE)
+                        ->values();
                     $oldBuilding = old('building');
                     $isOtherBuilding = filled($oldBuilding) && !$buildingOptions->contains($oldBuilding);
                 @endphp
@@ -173,6 +255,39 @@
                            placeholder="Tulis nama bangunan / area lainnya">
                 </div>
                 <span class="hint">Pilih bangunan dari daftar. Jika belum ada, pilih <strong>Lainnya</strong> lalu isi manual.</span>
+            </div>
+
+            <div class="field">
+                <label>Perusahaan <span class="req">*</span></label>
+                @php
+                    $companyOptions = collect(config('companies', []))->unique()->sort()->values();
+                    $oldCompany = old('company_name');
+                    $isOtherCompany = filled($oldCompany) && !$companyOptions->contains($oldCompany);
+                @endphp
+                <select id="company-select" name="company_name" required onchange="toggleCompanyOther(this.value)">
+                    <option value="">-- Pilih Perusahaan --</option>
+                    @foreach($companyOptions as $company)
+                        <option value="{{ $company }}" @selected($oldCompany === $company)>{{ $company }}</option>
+                    @endforeach
+                    <option value="__other__" @selected($isOtherCompany)>Lainnya</option>
+                </select>
+                <div class="building-other-wrap" id="company-other-wrap" style="{{ $isOtherCompany ? 'display:block;' : '' }}">
+                    <input type="text"
+                           id="company-other"
+                           name="company_other"
+                           value="{{ $isOtherCompany ? $oldCompany : '' }}"
+                           placeholder="Tulis nama perusahaan lainnya">
+                </div>
+                <span class="hint">Cari dan pilih perusahaan. Jika belum ada, pilih <strong>Lainnya</strong> lalu isi manual.</span>
+            </div>
+
+            <div class="field">
+                <label>Jabatan</label>
+                <input type="text"
+                       name="job_title"
+                       value="{{ old('job_title') }}"
+                       placeholder="Contoh: Supervisor, Operator, Admin Site">
+                <span class="hint">Isi jabatan pelapor jika diperlukan.</span>
             </div>
 
             <div class="field" id="field-room" style="{{ in_array(old('type',''), ['receptionist','laundry']) ? '' : 'display:none' }}">
@@ -203,6 +318,20 @@
                 <span class="hint"><i class="fas fa-info-circle mr-1"></i>Cukup detailkan masalah yang ada.</span>
             </div>
 
+            <div class="field">
+                <label>Upload Foto</label>
+                <label class="photo-upload-box" for="photos-input" id="photo-upload-box">
+                    <input type="file" id="photos-input" name="photos[]" accept=".jpg,.jpeg,.png,.webp,image/*" multiple>
+                    <span class="photo-upload-copy">
+                        <span class="photo-upload-icon"><i class="fas fa-camera"></i></span>
+                        <span class="photo-upload-title">Klik atau drag foto ke sini</span>
+                        <span class="photo-upload-sub">Hanya foto. Maksimal 6 file dengan format JPG, PNG, atau WEBP.</span>
+                    </span>
+                </label>
+                <span class="hint">Opsional. Bisa upload lebih dari satu foto, maksimal 6 file.</span>
+                <div id="photo-preview-grid" class="photo-preview-grid" style="display:none;"></div>
+            </div>
+
             <button type="submit" class="btn-submit">
                 <i class="fas fa-paper-plane mr-2"></i> Kirim Laporan
             </button>
@@ -219,7 +348,7 @@
         <div class="form-sub">Masukkan nomor tiket yang Anda terima setelah mengirimkan laporan.</div>
 
         <div style="display:flex;gap:10px;margin-bottom:4px;">
-            <input type="text" id="cek-input" placeholder="Contoh: RCP-20260415-0001"
+            <input type="text" id="cek-input" placeholder="Contoh: RCP-0001"
                    style="flex:1;padding:10px 14px;border:1.5px solid var(--line);border-radius:10px;font:inherit;font-size:.9rem;"
                    onkeydown="if(event.key==='Enter')cekTiket()">
             <button onclick="cekTiket()" class="btn-submit" style="width:auto;padding:10px 22px;">
@@ -276,6 +405,22 @@ function toggleBuildingOther(value) {
     }
 }
 
+function toggleCompanyOther(value) {
+    const otherWrap = document.getElementById('company-other-wrap');
+    const otherInput = document.getElementById('company-other');
+
+    if (!otherWrap || !otherInput) return;
+
+    if (value === '__other__') {
+        otherWrap.style.display = 'block';
+        otherInput.required = true;
+    } else {
+        otherWrap.style.display = 'none';
+        otherInput.required = false;
+        otherInput.value = '';
+    }
+}
+
 function onTypeChange(type) {
     const fieldRoom = document.getElementById('field-room');
     const roomInput = document.getElementById('room-input');
@@ -303,6 +448,53 @@ function onTypeChange(type) {
     }
 }
 
+function formatFileSize(bytes) {
+    if (bytes < 1024 * 1024) {
+        return `${Math.round(bytes / 1024)} KB`;
+    }
+
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function renderPhotoPreviews(files) {
+    const previewGrid = document.getElementById('photo-preview-grid');
+
+    if (!previewGrid) {
+        return;
+    }
+
+    if (!files || files.length === 0) {
+        previewGrid.innerHTML = '';
+        previewGrid.style.display = 'none';
+        return;
+    }
+
+    previewGrid.style.display = 'grid';
+    previewGrid.innerHTML = '';
+
+    Array.from(files).forEach((file, index) => {
+        const card = document.createElement('div');
+        card.className = 'photo-preview-card';
+
+        const image = document.createElement('img');
+        image.alt = `Preview foto ${index + 1}`;
+
+        const meta = document.createElement('div');
+        meta.className = 'photo-preview-meta';
+        meta.innerHTML = `<strong>Foto ${index + 1}</strong><br>${file.name}<br>${formatFileSize(file.size)}`;
+
+        card.appendChild(image);
+        card.appendChild(meta);
+        previewGrid.appendChild(card);
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            image.src = event.target?.result || '';
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const sel = document.getElementById('type-select');
     if (sel.value) onTypeChange(sel.value);
@@ -322,6 +514,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         toggleBuildingOther(buildingSelect.value);
+    }
+
+    const companySelect = document.getElementById('company-select');
+    if (companySelect) {
+        new Choices(companySelect, {
+            searchEnabled: true,
+            searchChoices: true,
+            shouldSort: false,
+            itemSelectText: '',
+            placeholder: true,
+            placeholderValue: 'Cari atau pilih perusahaan...',
+            searchPlaceholderValue: 'Ketik nama perusahaan...',
+            noResultsText: 'Perusahaan tidak ditemukan',
+            noChoicesText: 'Tidak ada pilihan perusahaan',
+        });
+
+        toggleCompanyOther(companySelect.value);
+    }
+
+    const photoInput = document.getElementById('photos-input');
+    const photoUploadBox = document.getElementById('photo-upload-box');
+    if (photoInput) {
+        photoInput.addEventListener('change', (event) => {
+            renderPhotoPreviews(event.target.files);
+        });
+    }
+
+    if (photoUploadBox) {
+        ['dragenter', 'dragover'].forEach((eventName) => {
+            photoUploadBox.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                photoUploadBox.classList.add('is-dragover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach((eventName) => {
+            photoUploadBox.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                photoUploadBox.classList.remove('is-dragover');
+            });
+        });
     }
 });
 

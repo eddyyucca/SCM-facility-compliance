@@ -1,4 +1,4 @@
-{{-- Type tab partial: $type, $label, $icon, $color, $stats --}}
+﻿{{-- Type tab partial: $type, $label, $icon, $color, $stats --}}
 @php
     $colorMap = [
         'primary' => ['box' => 'bg-primary', 'text' => '#0d6efd'],
@@ -8,7 +8,6 @@
     $c = $colorMap[$color] ?? $colorMap['primary'];
 @endphp
 
-{{-- Mini stat cards --}}
 <div class="row mb-3">
     <div class="col-6 col-md-3 mb-2">
         <div class="info-box" style="border-radius:12px;">
@@ -60,16 +59,15 @@
 <div class="alert alert-danger py-2 px-3 mb-3" style="border-radius:10px;font-size:.85rem;">
     <i class="fas fa-exclamation-triangle mr-2"></i>
     <strong>{{ $stats['overdue'] }} laporan</strong> melewati batas SLA dan belum diselesaikan.
-    <a href="{{ route('complaints.index', ['type' => $type, 'status' => 'open']) }}" class="ml-2 alert-link">Lihat sekarang →</a>
+    <a href="{{ route('complaints.index', ['type' => $type, 'status' => 'open']) }}" class="ml-2 alert-link">Lihat sekarang -></a>
 </div>
 @endif
 
-{{-- Recent complaints table --}}
 <div class="card mb-0">
     <div class="card-header d-flex align-items-center justify-content-between py-2">
         <h3 class="card-title mb-0" style="font-size:.88rem;font-weight:700;">
             <i class="fas {{ $icon }} mr-2" style="color:{{ $c['text'] }};"></i>
-            Laporan Terbaru — {{ $label }}
+            Laporan Terbaru - {{ $label }}
         </h3>
         <a href="{{ route('complaints.index', ['type' => $type]) }}"
            class="btn btn-sm btn-outline-primary" style="font-size:.78rem;">
@@ -89,6 +87,7 @@
                         <th>Lokasi</th>
                         @endif
                         <th>Status</th>
+                        <th>Foto</th>
                         <th>SLA</th>
                         <th>Waktu</th>
                         <th></th>
@@ -108,22 +107,47 @@
                             <div style="font-size:.75rem;color:#aaa;">{{ $c->reporter_wa }}</div>
                             @endif
                         </td>
-                        <td style="font-size:.83rem;">{{ $c->room_number ?? $c->location ?? '—' }}</td>
+                        <td style="font-size:.83rem;">{{ $c->room_number ?? $c->location ?? '-' }}</td>
                         <td>
                             <span class="badge {{ $c->statusBadgeClass() }}" style="font-size:.74rem;">
                                 {{ $c->statusLabel() }}
                             </span>
                         </td>
                         <td>
+                            @if(!empty($c->photos))
+                                @php
+                                    $firstPhoto = $c->photos[0] ?? null;
+                                @endphp
+                                <div class="d-flex align-items-center" style="gap:8px;">
+                                    @if($firstPhoto)
+                                    <button type="button"
+                                            class="photo-thumb-button"
+                                            data-photo-preview
+                                            data-photo-src="{{ asset('storage/' . $firstPhoto) }}"
+                                            data-photo-title="Foto laporan {{ $c->ticket_number }}">
+                                        <img src="{{ asset('storage/' . $firstPhoto) }}"
+                                             alt="Foto {{ $c->ticket_number }}"
+                                             class="photo-thumb-image">
+                                    </button>
+                                    @endif
+                                    @if(count($c->photos) > 1)
+                                    <span class="photo-count-badge">+{{ count($c->photos) - 1 }}</span>
+                                    @endif
+                                </div>
+                            @else
+                                <span style="color:#adb5bd;font-size:.76rem;">-</span>
+                            @endif
+                        </td>
+                        <td>
                             @if($c->isOverdue())
-                                <span class="text-danger font-weight-bold" style="font-size:.76rem;">⚠ Overdue</span>
+                                <span class="text-danger font-weight-bold" style="font-size:.76rem;">Overdue</span>
                             @elseif($c->sla_deadline && $c->status !== 'closed')
                                 @php $h = $c->slaHoursLeft(); @endphp
                                 <span style="font-size:.76rem;color:{{ $h < 4 ? '#dc3545' : '#198754' }};">
                                     {{ $h > 0 ? '+'.abs($h).'j' : abs($h).'j lalu' }}
                                 </span>
                             @else
-                                <span style="color:#aaa;font-size:.76rem;">—</span>
+                                <span style="color:#aaa;font-size:.76rem;">-</span>
                             @endif
                         </td>
                         <td style="font-size:.76rem;color:#aaa;white-space:nowrap;">
@@ -136,7 +160,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4" style="font-size:.85rem;">
+                        <td colspan="8" class="text-center text-muted py-4" style="font-size:.85rem;">
                             <i class="fas fa-inbox fa-2x mb-2 d-block text-light"></i>
                             Tidak ada laporan dalam periode ini.
                         </td>
