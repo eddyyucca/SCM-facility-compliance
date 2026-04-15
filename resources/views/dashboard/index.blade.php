@@ -144,7 +144,9 @@
                             </h3>
                         </div>
                         <div class="card-body" style="padding:12px 16px;">
-                            <canvas id="trendChart" height="90"></canvas>
+                            <div style="position:relative;height:200px;">
+                                <canvas id="trendChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -158,7 +160,9 @@
                             </h3>
                         </div>
                         <div class="card-body" style="padding:12px;display:flex;flex-direction:column;align-items:center;">
-                            <canvas id="statusChart" style="max-height:180px;"></canvas>
+                            <div style="position:relative;height:180px;width:100%;">
+                                <canvas id="statusChart"></canvas>
+                            </div>
                             <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center;font-size:.77rem;">
                                 <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#dc3545;margin-right:4px;"></span>Open</span>
                                 <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffc107;margin-right:4px;"></span>In Progress</span>
@@ -264,6 +268,7 @@ new Chart(trendCtx, {
     data: chartData,
     options: {
         responsive: true,
+        maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
         plugins: {
             legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
@@ -289,6 +294,7 @@ new Chart(statusCtx, {
     },
     options: {
         responsive: true,
+        maintainAspectRatio: false,
         cutout: '65%',
         plugins: { legend: { display: false } }
     }

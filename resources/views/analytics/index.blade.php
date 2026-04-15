@@ -222,20 +222,22 @@
 <div class="row mb-4">
     {{-- Tren --}}
     <div class="col-md-8 mb-3">
-        <div class="card analytics-card analytics-panel analytics-panel-primary analytics-sla-card h-100">
+        <div class="card analytics-card analytics-panel analytics-panel-primary analytics-sla-card">
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-chart-line text-primary"></i> Tren Laporan Masuk
                 </h3>
             </div>
             <div class="card-body">
-                <canvas id="trendChart" height="100"></canvas>
+                <div style="position:relative;height:220px;">
+                    <canvas id="trendChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
     {{-- Distribusi tipe --}}
     <div class="col-md-4 mb-3">
-        <div class="card analytics-card analytics-panel analytics-panel-info h-100">
+        <div class="card analytics-card analytics-panel analytics-panel-info">
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-chart-pie text-info"></i> Distribusi per Tipe
@@ -259,24 +261,24 @@
 <div class="row mb-4">
     {{-- Hari dalam seminggu --}}
     <div class="col-md-6 mb-3">
-        <div class="card analytics-card analytics-panel analytics-panel-warning h-100">
+        <div class="card analytics-card analytics-panel analytics-panel-warning">
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-calendar-week text-warning"></i> Distribusi Hari dalam Seminggu
                 </h3>
             </div>
-            <div class="card-body"><canvas id="dowChart" height="120"></canvas></div>
+            <div class="card-body"><div style="position:relative;height:180px;"><canvas id="dowChart"></canvas></div></div>
         </div>
     </div>
     {{-- Per jam --}}
     <div class="col-md-6 mb-3">
-        <div class="card analytics-card analytics-panel analytics-panel-success h-100">
+        <div class="card analytics-card analytics-panel analytics-panel-success">
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-clock text-success"></i> Jam Paling Banyak Laporan
                 </h3>
             </div>
-            <div class="card-body"><canvas id="hourChart" height="120"></canvas></div>
+            <div class="card-body"><div style="position:relative;height:180px;"><canvas id="hourChart"></canvas></div></div>
         </div>
     </div>
 </div>
@@ -284,17 +286,17 @@
 {{-- ── Row 3: Top Buildings ── --}}
 <div class="row mb-4">
     <div class="col-md-7 mb-3">
-        <div class="card analytics-card analytics-panel analytics-panel-danger h-100">
+        <div class="card analytics-card analytics-panel analytics-panel-danger">
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-building text-danger"></i> Top Bangunan dengan Keluhan Terbanyak
                 </h3>
             </div>
-            <div class="card-body"><canvas id="buildingChart" height="160"></canvas></div>
+            <div class="card-body"><div style="position:relative;height:220px;"><canvas id="buildingChart"></canvas></div></div>
         </div>
     </div>
     <div class="col-md-5 mb-3">
-        <div class="card analytics-card analytics-panel analytics-panel-primary analytics-sla-card h-100">
+        <div class="card analytics-card analytics-panel analytics-panel-primary analytics-sla-card">
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-shield-alt text-primary"></i> SLA Compliance
@@ -392,7 +394,7 @@ const trendDs = @json($trendDs);
 new Chart(document.getElementById('trendChart').getContext('2d'), {
     type: 'line',
     data: { labels: @json($trendLabels), datasets: trendDs },
-    options: { responsive: true, plugins: { legend: { position:'top', labels:{ boxWidth:12, font:{size:11} } } }, scales: { y:{ beginAtZero:true, ticks:{stepSize:1} } } }
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position:'top', labels:{ boxWidth:12, font:{size:11} } } }, scales: { y:{ beginAtZero:true, ticks:{stepSize:1} } } }
 });
 
 // Type donut
@@ -409,14 +411,14 @@ new Chart(document.getElementById('typeChart').getContext('2d'), {
 new Chart(document.getElementById('dowChart').getContext('2d'), {
     type:'bar',
     data:{ labels: @json($dowLabels), datasets:[{ label:'Laporan', data: @json($dowData), backgroundColor:'rgba(13,110,253,.65)', borderColor:'#0d6efd', borderWidth:1 }] },
-    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}} }
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}} }
 });
 
 // Hour chart
 new Chart(document.getElementById('hourChart').getContext('2d'), {
     type:'bar',
     data:{ labels: Array.from({length:24},(_,i)=>i+'h'), datasets:[{ label:'Laporan', data: @json($hourData), backgroundColor:'rgba(25,135,84,.65)', borderColor:'#198754', borderWidth:1 }] },
-    options:{ responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}} }
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true,ticks:{stepSize:1}}} }
 });
 
 // Top buildings
@@ -425,7 +427,7 @@ const bData   = @json($topBuildings->pluck('cnt'));
 new Chart(document.getElementById('buildingChart').getContext('2d'), {
     type:'bar',
     data:{ labels:bLabels, datasets:[{ label:'Keluhan', data:bData, backgroundColor:'rgba(220,53,69,.65)', borderColor:'#dc3545', borderWidth:1 }] },
-    options:{ indexAxis:'y', responsive:true, plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true,ticks:{stepSize:1}}} }
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{x:{beginAtZero:true,ticks:{stepSize:1}}} }
 });
 
 // SLA donut

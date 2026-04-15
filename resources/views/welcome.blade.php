@@ -315,7 +315,7 @@
                 <textarea name="description" id="desc-area"
                           placeholder="Ceritakan masalah yang Anda alami secara detail..."
                           required>{{ old('description') }}</textarea>
-                <span class="hint"><i class="fas fa-info-circle mr-1"></i>Cukup detailkan masalah yang ada.</span>
+                <span class="hint"><i class="fas fa-info-circle mr-1"></i> Cukup detailkan masalah yang ada.</span>
             </div>
 
             <div class="field">
@@ -428,7 +428,7 @@ function onTypeChange(type) {
     const descArea = document.getElementById('desc-area');
 
     const placeholders = {
-        receptionist: 'Jelaskan masalah fasilitas kamar (AC, TV, air panas, kunci, dll)...',
+        receptionist: 'Jelaskan masalah kamar ',
         hk: 'Jelaskan masalah kebersihan yang ditemukan (sprei, lantai, sampah, toilet, dll)...',
         laundry: 'Jelaskan masalah cucian (belum selesai, tertukar, rusak, jumlah kurang, dll)...',
     };

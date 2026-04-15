@@ -521,7 +521,7 @@
         </nav>
 
         {{-- Sidebar footer: user info --}}
-        <div class="sidebar-footer">
+        <!-- <div class="sidebar-footer">
             <div class="user-name">{{ Auth::user()->name }}</div>
             <span class="user-role">{{ ucfirst(Auth::user()->role) }}</span>
             <form method="POST" action="{{ route('logout') }}">
@@ -530,7 +530,7 @@
                     <i class="fas fa-sign-out-alt mr-1"></i> Keluar
                 </button>
             </form>
-        </div>
+        </div> -->
     </div>
 </aside>
 
