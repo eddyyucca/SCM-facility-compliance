@@ -249,7 +249,7 @@
                     @php $typeColors = ['receptionist'=>'#0d6efd','hk'=>'#198754','laundry'=>'#ffc107']; @endphp
                     @foreach($byType as $t => $cnt)
                     <span class="analytics-legend-item"><span class="analytics-legend-dot" style="background:{{ $typeColors[$t]??'#aaa' }};"></span>
-                    {{ ['receptionist'=>'Resepsionis','hk'=>'HK','laundry'=>'Laundry'][$t]??$t }}
+                    {{ ['receptionist'=>'Receptionist','hk'=>'HK','laundry'=>'Laundry'][$t]??$t }}
                     ({{ $cnt }})</span>
                     @endforeach
                 </div>
@@ -353,7 +353,7 @@
                             @endif
                             <td>
                                 <span class="badge {{ ['receptionist'=>'type-rec','hk'=>'type-hk','laundry'=>'type-ldy'][$row->type]??'' }}" style="font-size:.72rem;">
-                                    {{ ['receptionist'=>'Resepsionis','hk'=>'HK','laundry'=>'Laundry'][$row->type]??$row->type }}
+                                    {{ ['receptionist'=>'Receptionist','hk'=>'HK','laundry'=>'Laundry'][$row->type]??$row->type }}
                                 </span>
                             </td>
                             <td class="text-center font-weight-bold">{{ $row->cnt }}</td>
@@ -401,7 +401,7 @@ new Chart(document.getElementById('trendChart').getContext('2d'), {
 new Chart(document.getElementById('typeChart').getContext('2d'), {
     type: 'doughnut',
     data: {
-        labels: ['Resepsionis','Housekeeping','Laundry'],
+        labels: ['Receptionist','Housekeeping','Laundry'],
         datasets:[{ data:[ @json($byType['receptionist']??0), @json($byType['hk']??0), @json($byType['laundry']??0) ], backgroundColor:['#0d6efd','#198754','#ffc107'], borderWidth:2, borderColor:'#fff' }]
     },
     options: { responsive:true, cutout:'65%', plugins:{legend:{display:false}} }

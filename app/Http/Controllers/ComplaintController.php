@@ -3,14 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Complaint;
+use App\Services\WebPushService;
 use App\Services\WhatsappService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ComplaintController extends Controller
 {
-    public function __construct(private WhatsappService $whatsappService)
+    public function __construct(
+        private WhatsappService $whatsappService,
+        private WebPushService $webPushService,
+    )
     {
     }
 
@@ -60,10 +65,24 @@ class ComplaintController extends Controller
         unset($data['building_other'], $data['company_other']);
 
         if ($request->hasFile('photos')) {
-            $data['photos'] = collect($request->file('photos'))
-                ->map(fn ($file) => $file->store('complaints', 'public'))
-                ->values()
-                ->all();
+            try {
+                Storage::disk('public')->makeDirectory('complaints');
+
+                $data['photos'] = collect($request->file('photos'))
+                    ->map(fn ($file) => $file->store('complaints', 'public'))
+                    ->values()
+                    ->all();
+            } catch (\Throwable $e) {
+                Log::error('Photo upload failed while storing complaint.', [
+                    'error' => $e->getMessage(),
+                    'disk' => 'public',
+                    'target' => 'complaints',
+                ]);
+
+                return back()
+                    ->withInput()
+                    ->with('error', 'Upload foto gagal. Pastikan folder storage hosting writable dan storage link aktif.');
+            }
         }
 
         $complaint = Complaint::create($data);
@@ -75,6 +94,8 @@ class ComplaintController extends Controller
                 'response' => $waResult['response'],
             ]);
         }
+
+        $this->webPushService->sendComplaintCreated($complaint);
 
         // Redirect to QR success page (ticket stored in session)
         return redirect()->route('ticket.success')
@@ -109,6 +130,10 @@ class ComplaintController extends Controller
                   ->orWhere('description', 'like', "%$s%");
             });
         }
+        if ($request->boolean('overdue')) {
+            $query->whereNotIn('status', ['closed', 'rejected'])
+                  ->where('sla_deadline', '<', now());
+        }
 
         $complaints = $query->paginate(15)->withQueryString();
 
@@ -130,11 +155,11 @@ class ComplaintController extends Controller
         abort_unless($user->canView($complaint->type), 403);
 
         $data = $request->validate([
-            'status'      => 'required|in:open,progress,closed',
+            'status'      => 'required|in:open,progress,closed,rejected',
             'admin_notes' => 'nullable|string|max:1000',
         ]);
 
-        if ($data['status'] === 'closed' && !$complaint->resolved_at) {
+        if (in_array($data['status'], ['closed', 'rejected']) && !$complaint->resolved_at) {
             $data['resolved_at'] = now();
         }
 

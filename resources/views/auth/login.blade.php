@@ -130,7 +130,7 @@
 <body>
 <div class="login-box">
     <div class="brand">
-        <img src="{{ asset('icons/scm-logo-transparent.png') }}" alt="SCM Logo" class="brand-icon">
+        <img src="{{ asset('icons/GA-SCM.png') }}" alt="GA SCM Logo" class="brand-icon">
         <h1>PT. Sulawesi Cahaya Mineral</h1>
         <p>Complaint Management System</p>
     </div>

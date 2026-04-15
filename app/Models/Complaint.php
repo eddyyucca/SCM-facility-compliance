@@ -65,7 +65,7 @@ class Complaint extends Model
 
     public function isOverdue(): bool
     {
-        if ($this->status === 'closed') return false;
+        if (in_array($this->status, ['closed', 'rejected'])) return false;
         return $this->sla_deadline && now()->isAfter($this->sla_deadline);
     }
 
@@ -78,7 +78,7 @@ class Complaint extends Model
     public function typeLabel(): string
     {
         return match($this->type) {
-            'receptionist' => 'Resepsionis',
+            'receptionist' => 'Receptionist',
             'hk'           => 'Housekeeping',
             'laundry'      => 'Laundry',
             default        => ucfirst($this->type),
@@ -102,6 +102,7 @@ class Complaint extends Model
             'open'     => 'status-open',
             'progress' => 'status-progress',
             'closed'   => 'status-closed',
+            'rejected' => 'status-rejected',
             default    => '',
         };
     }
@@ -112,6 +113,7 @@ class Complaint extends Model
             'open'     => 'Open',
             'progress' => 'Progress',
             'closed'   => 'Closed',
+            'rejected' => 'Rejected',
             default    => ucfirst($this->status),
         };
     }
@@ -122,6 +124,7 @@ class Complaint extends Model
             'open'     => '#dc3545',
             'progress' => '#fd7e14',
             'closed'   => '#198754',
+            'rejected' => '#6c757d',
             default    => '#6c757d',
         };
     }

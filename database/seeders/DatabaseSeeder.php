@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
         // ── 4 Accounts ──
         $users = [
             ['name' => 'Super Admin GA',    'email' => 'superadmin@ga.com',   'role' => 'superadmin'],
-            ['name' => 'Staff Resepsionis', 'email' => 'receptionist@ga.com', 'role' => 'receptionist'],
+            ['name' => 'Staff Receptionist', 'email' => 'receptionist@ga.com', 'role' => 'receptionist'],
             ['name' => 'Staff Housekeeping','email' => 'hk@ga.com',           'role' => 'hk'],
             ['name' => 'Staff Laundry',     'email' => 'laundry@ga.com',      'role' => 'laundry'],
         ];

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Complaint;
+use App\Models\PushSubscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -16,36 +17,47 @@ class DashboardController extends Controller
         $userTypes = $user->isSuperAdmin() ? $allTypes : [$user->role];
 
         // ── Date range (default: current month) ──
+        $tz = config('app.timezone');
         $dateFrom = $request->filled('date_from')
-            ? Carbon::parse($request->date_from)->startOfDay()
-            : Carbon::now()->startOfMonth();
+            ? Carbon::createFromFormat('Y-m-d', $request->date_from, $tz)->startOfDay()
+            : Carbon::now($tz)->startOfMonth()->startOfDay();
         $dateTo = $request->filled('date_to')
-            ? Carbon::parse($request->date_to)->endOfDay()
-            : Carbon::now()->endOfDay();
+            ? Carbon::createFromFormat('Y-m-d', $request->date_to, $tz)->endOfDay()
+            : Carbon::now($tz)->endOfDay();
 
-        // ── Summary (all user's types, date-filtered) ──
-        $base    = Complaint::whereIn('type', $userTypes)->whereBetween('created_at', [$dateFrom, $dateTo]);
-        $summary = [
-            'total'    => (clone $base)->count(),
-            'open'     => (clone $base)->where('status', 'open')->count(),
-            'progress' => (clone $base)->where('status', 'progress')->count(),
-            'closed'   => (clone $base)->where('status', 'closed')->count(),
+        // ── Summary — TANPA date filter (kondisi saat ini) ──
+        $base = Complaint::whereIn('type', $userTypes);
+        $open     = (clone $base)->where('status', 'open')->count();
+        $progress = (clone $base)->where('status', 'progress')->count();
+        $closed   = (clone $base)->where('status', 'closed')->count();
+        $rejected = (clone $base)->where('status', 'rejected')->count();
+        $summary  = [
+            'total'    => $open + $progress + $closed + $rejected,
+            'open'     => $open,
+            'progress' => $progress,
+            'closed'   => $closed,
+            'rejected' => $rejected,
             'overdue'  => (clone $base)->whereIn('status', ['open','progress'])
                                        ->where('sla_deadline', '<', now())->count(),
         ];
 
-        // ── Per-type stats ──
+        // ── Per-type stats — TANPA date filter (kondisi saat ini) ──
         $typeStats = [];
         foreach ($userTypes as $type) {
-            $q = Complaint::where('type', $type)->whereBetween('created_at', [$dateFrom, $dateTo]);
+            $q        = Complaint::where('type', $type);
+            $tOpen    = (clone $q)->where('status', 'open')->count();
+            $tProg    = (clone $q)->where('status', 'progress')->count();
+            $tClosed  = (clone $q)->where('status', 'closed')->count();
+            $tRej     = (clone $q)->where('status', 'rejected')->count();
             $typeStats[$type] = [
-                'total'    => (clone $q)->count(),
-                'open'     => (clone $q)->where('status', 'open')->count(),
-                'progress' => (clone $q)->where('status', 'progress')->count(),
-                'closed'   => (clone $q)->where('status', 'closed')->count(),
+                'total'    => $tOpen + $tProg + $tClosed + $tRej,
+                'open'     => $tOpen,
+                'progress' => $tProg,
+                'closed'   => $tClosed,
+                'rejected' => $tRej,
                 'overdue'  => (clone $q)->whereIn('status', ['open','progress'])
                                         ->where('sla_deadline', '<', now())->count(),
-                'recent'      => Complaint::where('type', $type)
+                'recent'   => Complaint::where('type', $type)
                                     ->orderByDesc('created_at')
                                     ->limit(6)->get(),
             ];
@@ -68,9 +80,128 @@ class DashboardController extends Controller
         ));
     }
 
+    /** AJAX endpoint — live dashboard stats */
+    public function stats(Request $request)
+    {
+        $user      = Auth::user();
+        $allTypes  = ['receptionist', 'hk', 'laundry'];
+        $userTypes = $user->isSuperAdmin() ? $allTypes : [$user->role];
+
+        $tz = config('app.timezone');
+        $dateFrom = $request->filled('date_from')
+            ? Carbon::createFromFormat('Y-m-d', $request->date_from, $tz)->startOfDay()
+            : Carbon::now($tz)->startOfMonth()->startOfDay();
+        $dateTo = $request->filled('date_to')
+            ? Carbon::createFromFormat('Y-m-d', $request->date_to, $tz)->endOfDay()
+            : Carbon::now($tz)->endOfDay();
+
+        // Summary — TANPA date filter (kondisi saat ini)
+        $base     = Complaint::whereIn('type', $userTypes);
+        $open     = (clone $base)->where('status', 'open')->count();
+        $progress = (clone $base)->where('status', 'progress')->count();
+        $closed   = (clone $base)->where('status', 'closed')->count();
+        $rejected = (clone $base)->where('status', 'rejected')->count();
+        $summary  = [
+            'total'    => $open + $progress + $closed + $rejected,
+            'open'     => $open,
+            'progress' => $progress,
+            'closed'   => $closed,
+            'rejected' => $rejected,
+            'overdue'  => (clone $base)->whereIn('status', ['open','progress'])
+                                       ->where('sla_deadline', '<', now())->count(),
+        ];
+
+        $typeStats = [];
+        foreach ($userTypes as $type) {
+            $q       = Complaint::where('type', $type);
+            $tOpen   = (clone $q)->where('status', 'open')->count();
+            $tProg   = (clone $q)->where('status', 'progress')->count();
+            $tClosed = (clone $q)->where('status', 'closed')->count();
+            $tRej    = (clone $q)->where('status', 'rejected')->count();
+            $typeStats[$type] = [
+                'total'    => $tOpen + $tProg + $tClosed + $tRej,
+                'open'     => $tOpen,
+                'progress' => $tProg,
+                'closed'   => $tClosed,
+                'rejected' => $tRej,
+                'overdue'  => (clone $q)->whereIn('status', ['open','progress'])
+                                        ->where('sla_deadline', '<', now())->count(),
+            ];
+        }
+
+        $outstanding = Complaint::whereIn('type', $userTypes)
+            ->whereIn('status', ['open', 'progress'])
+            ->where('sla_deadline', '<', now())
+            ->orderBy('sla_deadline')
+            ->limit(10)
+            ->get()
+            ->map(fn ($c) => [
+                'ticket'       => $c->ticket_number,
+                'type_label'   => $c->typeLabel(),
+                'type_badge'   => $c->type === 'receptionist' ? 'type-rec' : ($c->type === 'hk' ? 'type-hk' : 'type-ldy'),
+                'reporter'     => $c->reporter_name,
+                'status_label' => $c->statusLabel(),
+                'status_badge' => $c->statusBadgeClass(),
+                'sla_deadline' => $c->sla_deadline?->format('d M Y H:i'),
+                'late_hours'   => abs(round($c->sla_deadline?->diffInHours(now()), 1)),
+                'url'          => route('complaints.show', $c),
+            ]);
+
+        $chartData = $this->buildChartData($userTypes, $dateFrom, $dateTo);
+
+        return response()->json(compact('summary', 'typeStats', 'outstanding', 'chartData'));
+    }
+
     /** AJAX endpoint — new complaints since timestamp */
     public function newComplaints(Request $request)
     {
+        $pushAction = $request->input('push_action');
+        if ($pushAction === 'public_key') {
+            return response()->json([
+                'enabled' => filled(config('services.webpush.public_key')) && filled(config('services.webpush.private_key')),
+                'publicKey' => config('services.webpush.public_key'),
+            ]);
+        }
+
+        if ($pushAction === 'subscribe') {
+            $data = $request->validate([
+                'endpoint' => 'required|url|max:2000',
+                'p256dh' => 'required|string|max:255',
+                'auth' => 'required|string|max:255',
+                'content_encoding' => 'nullable|string|in:aesgcm,aes128gcm',
+            ]);
+            $user = Auth::user();
+
+            PushSubscription::updateOrCreate(
+                ['endpoint_hash' => hash('sha256', $data['endpoint'])],
+                [
+                    'user_id' => $user->id,
+                    'endpoint' => $data['endpoint'],
+                    'endpoint_hash' => hash('sha256', $data['endpoint']),
+                    'public_key' => $data['p256dh'],
+                    'auth_token' => $data['auth'],
+                    'content_encoding' => $data['content_encoding'] ?? 'aes128gcm',
+                    'user_agent' => (string) $request->userAgent(),
+                    'last_used_at' => now(),
+                ]
+            );
+
+            return response()->json(['ok' => true]);
+        }
+
+        if ($pushAction === 'unsubscribe') {
+            $data = $request->validate([
+                'endpoint' => 'required|url|max:2000',
+            ]);
+            $user = Auth::user();
+
+            PushSubscription::where('user_id', $user->id)
+                ->where('endpoint_hash', hash('sha256', $data['endpoint']))
+                ->delete();
+
+            return response()->json(['ok' => true]);
+        }
+
         $user      = Auth::user();
         $types     = $user->isSuperAdmin() ? ['receptionist','hk','laundry'] : [$user->role];
         $sinceRaw  = $request->input('since', now()->subMinutes(1)->toISOString());
@@ -114,7 +245,7 @@ class DashboardController extends Controller
             'laundry'      => ['bg' => 'rgba(255,193,7,.75)',   'border' => '#e6a800'],
         ];
         $typeLabels = [
-            'receptionist' => 'Resepsionis',
+            'receptionist' => 'Receptionist',
             'hk'           => 'Housekeeping',
             'laundry'      => 'Laundry',
         ];

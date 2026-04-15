@@ -35,7 +35,7 @@
                 <div class="col-md-2 mb-2">
                     <select name="type" class="form-control form-control-sm">
                         <option value="">Semua Tipe</option>
-                        <option value="receptionist" {{ request('type') === 'receptionist' ? 'selected':'' }}>Resepsionis</option>
+                        <option value="receptionist" {{ request('type') === 'receptionist' ? 'selected':'' }}>Receptionist</option>
                         <option value="hk"           {{ request('type') === 'hk'           ? 'selected':'' }}>Housekeeping</option>
                         <option value="laundry"      {{ request('type') === 'laundry'      ? 'selected':'' }}>Laundry</option>
                     </select>
@@ -48,9 +48,20 @@
                         <option value="open"     {{ request('status') === 'open'     ? 'selected':'' }}>Open</option>
                         <option value="progress" {{ request('status') === 'progress' ? 'selected':'' }}>Progress</option>
                         <option value="closed"   {{ request('status') === 'closed'   ? 'selected':'' }}>Closed</option>
+                        <option value="rejected" {{ request('status') === 'rejected' ? 'selected':'' }}>Rejected</option>
                     </select>
                 </div>
 
+                <div class="col-md-2 mb-2">
+                    <div class="form-check mt-1" style="padding-left:1.4rem;">
+                        <input type="checkbox" class="form-check-input" id="overdue-check"
+                               name="overdue" value="1" {{ request()->boolean('overdue') ? 'checked' : '' }}>
+                        <label class="form-check-label font-weight-bold text-danger" for="overdue-check"
+                               style="font-size:.84rem;">
+                            <i class="fas fa-exclamation-triangle mr-1"></i> Overdue SLA
+                        </label>
+                    </div>
+                </div>
                 <div class="col-auto mb-2">
                     <button type="submit" class="btn btn-primary btn-sm">
                         <i class="fas fa-filter mr-1"></i> Filter

@@ -55,7 +55,24 @@
                     </div>
                     <div class="col-sm-6 mb-3">
                         <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;font-weight:700;margin-bottom:4px;">No. WhatsApp</div>
-                        <div style="font-size:.92rem;font-weight:600;color:#1a2340;font-family:monospace;">{{ $complaint->reporter_wa ?: '—' }}</div>
+                        <div style="font-size:.92rem;font-weight:600;color:#1a2340;font-family:monospace;">
+                            @if($complaint->reporter_wa)
+                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $complaint->reporter_wa) }}"
+                                   target="_blank" style="color:#25d366;text-decoration:none;">
+                                    <i class="fab fa-whatsapp mr-1"></i>{{ $complaint->reporter_wa }}
+                                </a>
+                            @else
+                                —
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;font-weight:700;margin-bottom:4px;">Perusahaan</div>
+                        <div style="font-size:.92rem;font-weight:600;color:#1a2340;">{{ $complaint->company_name ?: '—' }}</div>
+                    </div>
+                    <div class="col-sm-6 mb-3">
+                        <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;font-weight:700;margin-bottom:4px;">Jabatan</div>
+                        <div style="font-size:.92rem;font-weight:600;color:#1a2340;">{{ $complaint->job_title ?: '—' }}</div>
                     </div>
                     <div class="col-sm-6 mb-3">
                         <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;font-weight:700;margin-bottom:4px;">Bangunan / Area</div>
@@ -73,6 +90,27 @@
                 @if($complaint->admin_notes)
                 <div style="margin-top:14px;font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#198754;font-weight:700;margin-bottom:8px;">Catatan Admin</div>
                 <div style="background:#f0fdf4;border-left:3px solid #198754;border-radius:0 10px 10px 0;padding:14px 16px;font-size:.88rem;line-height:1.75;color:#166534;white-space:pre-line;">{{ $complaint->admin_notes }}</div>
+                @endif
+
+                @if($complaint->photos && count($complaint->photos) > 0)
+                <div style="margin-top:18px;">
+                    <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;font-weight:700;margin-bottom:10px;">
+                        <i class="fas fa-images mr-1"></i> Foto Lampiran
+                        <span class="photo-count-badge ml-2">{{ count($complaint->photos) }} foto</span>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;">
+                        @foreach($complaint->photos as $i => $photo)
+                        <button type="button" class="photo-thumb-button"
+                                data-photo-preview
+                                data-photo-src="{{ Storage::url($photo) }}"
+                                data-photo-title="Foto {{ $i + 1 }} dari {{ count($complaint->photos) }}">
+                            <img src="{{ Storage::url($photo) }}"
+                                 alt="Foto lampiran {{ $i + 1 }}"
+                                 class="photo-thumb-image">
+                        </button>
+                        @endforeach
+                    </div>
+                </div>
                 @endif
             </div>
         </div>
@@ -101,8 +139,8 @@
                         @if($complaint->isOverdue())
                             <div style="font-size:.85rem;font-weight:800;color:#dc3545;">⚠ Overdue</div>
                             <div style="font-size:.72rem;color:#dc3545;">{{ abs($complaint->slaHoursLeft()) }}j terlewat</div>
-                        @elseif($complaint->status === 'closed')
-                            <div style="font-size:.85rem;font-weight:800;color:#198754;">✓ Tepat Waktu</div>
+                        @elseif(in_array($complaint->status, ['closed', 'rejected']))
+                            <div style="font-size:.85rem;font-weight:800;color:#198754;">✓ Selesai</div>
                         @else
                             <div style="font-size:.85rem;font-weight:800;color:#198754;">Sisa {{ max(0, $complaint->slaHoursLeft()) }}j</div>
                         @endif
@@ -133,6 +171,7 @@
                             <option value="open"     {{ $complaint->status === 'open'     ? 'selected' : '' }}>Open</option>
                             <option value="progress" {{ $complaint->status === 'progress' ? 'selected' : '' }}>Progress</option>
                             <option value="closed"   {{ $complaint->status === 'closed'   ? 'selected' : '' }}>Closed</option>
+                            <option value="rejected" {{ $complaint->status === 'rejected' ? 'selected' : '' }}>Rejected — Permintaan Ditolak</option>
                         </select>
                     </div>
                     <div class="form-group mb-3">

@@ -46,7 +46,7 @@
                                 ][$user->role] ?? 'badge-secondary' }}">
                                     {{ [
                                         'superadmin' => 'Super Admin',
-                                        'receptionist' => 'Resepsionis',
+                                        'receptionist' => 'Receptionist',
                                         'hk' => 'Housekeeping',
                                         'laundry' => 'Laundry',
                                     ][$user->role] ?? $user->role }}

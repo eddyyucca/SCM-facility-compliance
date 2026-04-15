@@ -65,41 +65,9 @@
             text-overflow: ellipsis;
         }
         .main-footer {
-            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+            background: #fff !important;
             border-top: 1px solid #e3eaf4 !important;
-            padding: 14px 24px !important;
-        }
-        .footer-wrap {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 14px;
-            flex-wrap: wrap;
-        }
-        .footer-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .footer-brand img {
-            width: 36px;
-            height: 36px;
-            object-fit: contain;
-        }
-        .footer-brand strong {
-            display: block;
-            font-size: .86rem;
-            color: #18263f;
-        }
-        .footer-brand span {
-            display: block;
-            font-size: .76rem;
-            color: #7a8797;
-        }
-        .footer-meta {
-            text-align: right;
-            font-size: .76rem;
-            color: #97a3b3;
+            padding: 10px 24px !important;
         }
 
         .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active,
@@ -174,6 +142,18 @@
         }
         #sound-toggle:hover { background: #f0f4f8; }
         #sound-toggle.muted { color: #aaa; }
+        #push-toggle {
+            background: none; border: none; cursor: pointer;
+            color: #4a5568; font-size: .9rem; padding: 4px 10px;
+            border-radius: 999px; transition: background .15s, color .15s;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        #push-toggle:hover { background: #f0f4f8; }
+        #push-toggle.enabled { color: #198754; background: #eaf8ef; }
+        #push-toggle.disabled { color: #6c757d; }
+        #push-toggle.denied { color: #dc3545; background: #fff0f0; }
+        #push-toggle[hidden] { display: none !important; }
+        #push-label { font-size: .75rem; font-weight: 700; }
 
         /* Content area — min-height dibiarkan AdminLTE JS yang hitung */
         .content-wrapper { background: #eef2f7 !important; }
@@ -218,6 +198,7 @@
         .status-open     { background: #fde8e8 !important; color: #b02a37 !important; }
         .status-progress { background: #fff3cd !important; color: #856404 !important; }
         .status-closed   { background: #d1e7dd !important; color: #0f5132 !important; }
+        .status-rejected { background: #e2e3e5 !important; color: #41464b !important; }
         .type-rec  { background: #cfe2ff !important; color: #084298 !important; }
         .type-hk   { background: #d1e7dd !important; color: #0f5132 !important; }
         .type-ldy  { background: #fff3cd !important; color: #664d03 !important; }
@@ -322,8 +303,7 @@
         @media (max-width: 768px) {
             .content { padding: 12px !important; }
             .tab-content { padding: 12px; }
-            .main-footer { padding: 14px 16px !important; }
-            .footer-meta { text-align: left; }
+            .main-footer { padding: 10px 16px !important; }
         }
     </style>
     @stack('styles')
@@ -370,6 +350,12 @@
         <li class="nav-item">
             <button id="sound-toggle" title="Toggle notifikasi suara">
                 <i class="fas fa-volume-up" id="sound-icon"></i>
+            </button>
+        </li>
+        <li class="nav-item">
+            <button id="push-toggle" class="disabled" title="Aktifkan notifikasi push" hidden>
+                <i class="fas fa-bell" id="push-icon"></i>
+                <span id="push-label">Push Off</span>
             </button>
         </li>
 
@@ -425,7 +411,7 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-0">
     <a href="{{ route('dashboard') }}" class="brand-link px-3">
         <span class="brand-text brand-logo-wrap">
-            <img src="{{ asset('icons/scm-logo-transparent.png') }}" alt="SCM Logo" class="brand-logo-image">
+            <img src="{{ asset('icons/GA-SCM.png') }}" alt="GA SCM Logo" class="brand-logo-image">
             <span class="brand-logo-copy">
                 <strong>SCM</strong>
                 <span>Complaint Management</span>
@@ -468,6 +454,13 @@
                         <p>Progress</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('complaints.index', ['overdue' => '1']) }}"
+                       class="nav-link {{ request()->routeIs('complaints.*') && request()->boolean('overdue') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-exclamation-triangle" style="color:#dc3545;"></i>
+                        <p>Overdue SLA</p>
+                    </a>
+                </li>
 
         @if(Auth::user()->isSuperAdmin())
                 <li class="nav-header">ADMIN</li>
@@ -481,7 +474,7 @@
                 <li class="nav-header">FILTER TIPE</li>
                 <li class="nav-item">
                     <a href="{{ route('complaints.index', ['type' => 'receptionist']) }}" class="nav-link">
-                        <i class="nav-icon fas fa-concierge-bell"></i><p>Resepsionis</p>
+                        <i class="nav-icon fas fa-concierge-bell"></i><p>Receptionist</p>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -574,19 +567,7 @@
 </div>
 
 <footer class="main-footer">
-    <div class="footer-wrap">
-        <div class="footer-brand">
-            <img src="{{ asset('icons/scm-logo-transparent.png') }}" alt="SCM Logo">
-            <div>
-                <strong>SCM Complaint Management</strong>
-                <span>Panel administrasi pelaporan fasilitas internal</span>
-            </div>
-        </div>
-        <div class="footer-meta">
-            <div>&copy; {{ date('Y') }} PT. Sulawesi Cahaya Mineral</div>
-            <div>Version 2.0</div>
-        </div>
-    </div>
+    <span style="font-size:.78rem;color:#aaa;">&copy; {{ date('Y') }} PT. Sulawesi Cahaya Mineral &mdash; v2.0</span>
 </footer>
 </div>{{-- /wrapper --}}
 
@@ -602,6 +583,14 @@
 let soundEnabled = localStorage.getItem('ga_sound') !== 'false';
 let lastCheckTs  = new Date().toISOString();
 let pendingCount = 0;
+let swRegistration = null;
+let pushPublicKey = null;
+
+const pushState = {
+    supported: 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window,
+    enabled: false,
+    busy: false,
+};
 
 function updateSoundBtn() {
     const icon = document.getElementById('sound-icon');
@@ -617,12 +606,204 @@ function updateSoundBtn() {
     }
 }
 
+function updatePushBtn() {
+    const btn = document.getElementById('push-toggle');
+    const icon = document.getElementById('push-icon');
+    const label = document.getElementById('push-label');
+
+    if (!btn || !icon || !label) return;
+    if (!pushState.supported) {
+        btn.hidden = true;
+        return;
+    }
+
+    btn.hidden = false;
+    btn.disabled = pushState.busy;
+    btn.classList.remove('enabled', 'disabled', 'denied');
+
+    if (Notification.permission === 'denied') {
+        btn.classList.add('denied');
+        icon.className = 'fas fa-bell-slash';
+        label.textContent = 'Push Blocked';
+        btn.title = 'Izin notifikasi diblokir di browser';
+        return;
+    }
+
+    if (pushState.enabled) {
+        btn.classList.add('enabled');
+        icon.className = 'fas fa-bell';
+        label.textContent = 'Push On';
+        btn.title = 'Nonaktifkan notifikasi push';
+        return;
+    }
+
+    btn.classList.add('disabled');
+    icon.className = 'far fa-bell';
+    label.textContent = 'Push Off';
+    btn.title = pushState.busy ? 'Memproses notifikasi push' : 'Aktifkan notifikasi push';
+}
+
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+
+    return outputArray;
+}
+
+async function getPushPublicKey() {
+    if (pushPublicKey) return pushPublicKey;
+
+    const params = new URLSearchParams({
+        push_action: 'public_key',
+        _ts: Date.now().toString(),
+    });
+    const res = await fetch(`/api/new-complaints?${params}`, { cache: 'no-store' });
+    if (!res.ok) {
+        throw new Error('Gagal memuat public key push.');
+    }
+
+    const data = await res.json();
+    if (!data.enabled || !data.publicKey) {
+        throw new Error('Web push belum dikonfigurasi di server.');
+    }
+
+    pushPublicKey = data.publicKey;
+    return pushPublicKey;
+}
+
+async function syncPushSubscription(interactive = false) {
+    if (!pushState.supported) return;
+
+    pushState.busy = true;
+    updatePushBtn();
+
+    try {
+        swRegistration = swRegistration || await navigator.serviceWorker.ready;
+
+        if (Notification.permission === 'default' && interactive) {
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') {
+                pushState.enabled = false;
+                updatePushBtn();
+                return;
+            }
+        }
+
+        if (Notification.permission !== 'granted') {
+            pushState.enabled = false;
+            updatePushBtn();
+            return;
+        }
+
+        const vapidPublicKey = await getPushPublicKey();
+        let subscription = await swRegistration.pushManager.getSubscription();
+        const supportedEncodings = PushManager.supportedContentEncodings || [];
+
+        if (!subscription) {
+            subscription = await swRegistration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+            });
+        }
+
+        const payload = subscription.toJSON();
+        payload.contentEncoding = supportedEncodings.includes('aes128gcm') ? 'aes128gcm' : 'aesgcm';
+
+        const params = new URLSearchParams({
+            push_action: 'subscribe',
+            endpoint: payload.endpoint,
+            p256dh: payload.keys?.p256dh || '',
+            auth: payload.keys?.auth || '',
+            content_encoding: payload.contentEncoding || 'aes128gcm',
+            _ts: Date.now().toString(),
+        });
+        const res = await fetch(`/api/new-complaints?${params}`, {
+            cache: 'no-store',
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
+        });
+
+        if (!res.ok) {
+            throw new Error('Gagal menyimpan subscription push.');
+        }
+
+        pushState.enabled = true;
+
+        if (interactive) {
+            showToast('Push Aktif', 'Notifikasi push berhasil diaktifkan.', 'success');
+        }
+    } catch (error) {
+        pushState.enabled = false;
+
+        if (interactive) {
+            showToast('Push Gagal', error.message || 'Tidak bisa mengaktifkan notifikasi push.', 'warning');
+        }
+    } finally {
+        pushState.busy = false;
+        updatePushBtn();
+    }
+}
+
+async function disablePushSubscription() {
+    if (!pushState.supported) return;
+
+    pushState.busy = true;
+    updatePushBtn();
+
+    try {
+        swRegistration = swRegistration || await navigator.serviceWorker.ready;
+        const subscription = await swRegistration.pushManager.getSubscription();
+
+        if (subscription) {
+            const params = new URLSearchParams({
+                push_action: 'unsubscribe',
+                endpoint: subscription.endpoint,
+                _ts: Date.now().toString(),
+            });
+            await fetch(`/api/new-complaints?${params}`, {
+                cache: 'no-store',
+                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content },
+            });
+
+            await subscription.unsubscribe();
+        }
+
+        pushState.enabled = false;
+        showToast('Push Nonaktif', 'Notifikasi push dimatikan di device ini.', 'info');
+    } catch (error) {
+        showToast('Push Gagal', error.message || 'Tidak bisa mematikan notifikasi push.', 'warning');
+    } finally {
+        pushState.busy = false;
+        updatePushBtn();
+    }
+}
+
 document.getElementById('sound-toggle').addEventListener('click', () => {
     soundEnabled = !soundEnabled;
     localStorage.setItem('ga_sound', soundEnabled);
     updateSoundBtn();
 });
 updateSoundBtn();
+updatePushBtn();
+
+const pushToggle = document.getElementById('push-toggle');
+if (pushToggle) {
+    pushToggle.addEventListener('click', async () => {
+        if (pushState.busy) return;
+
+        if (pushState.enabled) {
+            await disablePushSubscription();
+            return;
+        }
+
+        await syncPushSubscription(true);
+    });
+}
 
 function playBeep(freq = 880, dur = 0.25) {
     if (!soundEnabled) return;
@@ -677,7 +858,12 @@ function renderNotifList(complaints) {
 
 async function pollNotifications() {
     try {
-        const res  = await fetch(`/api/new-complaints?since=${encodeURIComponent(lastCheckTs)}`, {
+        const params = new URLSearchParams({
+            since: lastCheckTs,
+            _ts: Date.now().toString(),
+        });
+        const res  = await fetch(`/api/new-complaints?${params}`, {
+            cache: 'no-store',
             headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
         });
         if (!res.ok) return;
@@ -700,7 +886,7 @@ async function pollNotifications() {
 
             data.complaints.forEach((c, i) => {
                 setTimeout(() => {
-                    const typeLabel = { receptionist: 'Resepsionis', hk: 'Housekeeping', laundry: 'Laundry' }[c.type] || c.type;
+                    const typeLabel = { receptionist: 'Receptionist', hk: 'Housekeeping', laundry: 'Laundry' }[c.type] || c.type;
                     showToast(
                         `Laporan Baru  ${c.ticket_number}`,
                         `${typeLabel} · ${c.reporter_name}`,
@@ -711,6 +897,11 @@ async function pollNotifications() {
         }
 
         lastCheckTs = data.timestamp;
+
+        // Jika ada laporan baru DAN dashboard terbuka, refresh seketika
+        if (data.count > 0 && typeof window.refreshDashboard === 'function') {
+            window.refreshDashboard();
+        }
     } catch(e) {}
 }
 
@@ -722,9 +913,16 @@ document.querySelector('#notif-bell > a').addEventListener('click', () => {
     badge.textContent = '0';
 });
 
-// Poll every 30 seconds
+// Refresh dashboard saat tab kembali aktif (misal setelah ubah status di halaman lain)
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && typeof window.refreshDashboard === 'function') {
+        window.refreshDashboard();
+    }
+});
+
+// Poll every 15 seconds
 setTimeout(pollNotifications, 5000);
-setInterval(pollNotifications, 30000);
+setInterval(pollNotifications, 15000);
 </script>
 <script>
 document.addEventListener('click', (event) => {
@@ -755,7 +953,22 @@ $('#photoLightboxModal').on('hidden.bs.modal', function () {
 <script>
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('{{ asset('sw.js') }}').catch(() => {});
+        navigator.serviceWorker.register('{{ asset('sw.js') }}')
+            .then(async (registration) => {
+                swRegistration = registration;
+                await registration.update();
+
+                if (pushState.supported) {
+                    const subscription = await registration.pushManager.getSubscription();
+                    pushState.enabled = !!subscription;
+                    updatePushBtn();
+
+                    if (Notification.permission === 'granted') {
+                        await syncPushSubscription(false);
+                    }
+                }
+            })
+            .catch(() => {});
     });
 }
 </script>

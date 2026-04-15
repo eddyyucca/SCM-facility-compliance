@@ -87,7 +87,7 @@ class UserManagementController extends Controller
     {
         return [
             'superadmin' => 'Super Admin',
-            'receptionist' => 'Resepsionis',
+            'receptionist' => 'Receptionist',
             'hk' => 'Housekeeping',
             'laundry' => 'Laundry',
         ];

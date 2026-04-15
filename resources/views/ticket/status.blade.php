@@ -27,6 +27,7 @@
         .step-dot{position:absolute;left:-25px;top:2px;width:12px;height:12px;border-radius:50%;background:#e9ecef;border:2px solid #fff;}
         .step-dot.done{background:var(--primary);}
         .step-dot.active{background:#198754;box-shadow:0 0 0 4px rgba(25,135,84,.2);}
+        .step-dot.rejected{background:#6c757d;box-shadow:0 0 0 4px rgba(108,117,125,.2);}
         .step-dot.pending{background:#dee2e6;}
         .step-title{font-size:.85rem;font-weight:700;margin-bottom:2px;}
         .step-desc{font-size:.78rem;color:var(--muted);}
@@ -35,7 +36,10 @@
         .info-row .val{font-weight:600;}
         .desc-box{background:#f8f9fa;border-radius:10px;padding:12px;font-size:.85rem;line-height:1.6;border-left:3px solid var(--primary);}
         .admin-box{background:#eff6ff;border-radius:10px;padding:12px;font-size:.84rem;line-height:1.6;border-left:3px solid #198754;margin-top:10px;}
+        .admin-box.rejected{background:#f8f9fa;border-left-color:#6c757d;}
         .overdue-warn{background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:10px 14px;font-size:.82rem;color:#856404;margin-bottom:12px;}
+        .rejected-notice{background:#f8f9fa;border:1px solid #dee2e6;border-radius:10px;padding:12px 16px;font-size:.84rem;color:#495057;margin-bottom:12px;display:flex;align-items:flex-start;gap:10px;}
+        .rejected-notice i{color:#6c757d;margin-top:2px;flex-shrink:0;}
     </style>
 </head>
 <body>
@@ -52,6 +56,16 @@
     </div>
     @endif
 
+    @if($complaint->status === 'rejected')
+    <div class="rejected-notice">
+        <i class="fas fa-ban fa-lg"></i>
+        <div>
+            <strong>Laporan Ditolak</strong><br>
+            Permintaan Anda tidak dapat diproses. Silakan hubungi tim GA secara langsung jika ada pertanyaan lebih lanjut.
+        </div>
+    </div>
+    @endif
+
     {{-- Header --}}
     <div class="card">
         <div class="ticket-num">{{ $complaint->ticket_number }}</div>
@@ -65,14 +79,16 @@
         </div>
 
         {{-- Progress timeline --}}
+        @php $isRejected = $complaint->status === 'rejected'; @endphp
         <div class="step-timeline">
             <div class="step">
-                <div class="step-dot {{ $complaint->status !== '' ? 'done' : '' }}"></div>
+                <div class="step-dot done"></div>
                 <div class="step-title">Open — Laporan Diterima</div>
                 <div class="step-desc">{{ $complaint->created_at->format('d M Y H:i') }}</div>
             </div>
+            @if(!$isRejected)
             <div class="step">
-                <div class="step-dot {{ $complaint->status === 'progress' ? 'active' : ($complaint->status === 'closed' ? 'done' : 'pending') }}"></div>
+                <div class="step-dot {{ in_array($complaint->status, ['progress','closed']) ? ($complaint->status === 'progress' ? 'active' : 'done') : 'pending' }}"></div>
                 <div class="step-title" style="{{ $complaint->status === 'open' ? 'color:#aaa' : '' }}">Progress — Sedang Ditangani</div>
                 <div class="step-desc">{{ $complaint->status === 'open' ? 'Menunggu tindakan tim GA' : 'Tim GA sedang menangani laporan' }}</div>
             </div>
@@ -83,6 +99,15 @@
                     {{ $complaint->resolved_at ? $complaint->resolved_at->format('d M Y H:i') : 'Belum diselesaikan' }}
                 </div>
             </div>
+            @else
+            <div class="step">
+                <div class="step-dot rejected"></div>
+                <div class="step-title" style="color:#6c757d;">Rejected — Laporan Ditolak</div>
+                <div class="step-desc">
+                    {{ $complaint->resolved_at ? $complaint->resolved_at->format('d M Y H:i') : '—' }}
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 
@@ -107,9 +132,13 @@
             <div class="desc-box">{{ $complaint->description }}</div>
         </div>
         @if($complaint->admin_notes)
-        <div class="admin-box">
-            <strong style="font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:#198754;">Catatan Tim GA:</strong><br>
-            {{ $complaint->admin_notes }}
+        <div class="admin-box {{ $complaint->status === 'rejected' ? 'rejected' : '' }}">
+            @if($complaint->status === 'rejected')
+                <strong style="font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:#6c757d;">Alasan Penolakan:</strong>
+            @else
+                <strong style="font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:#198754;">Catatan Tim GA:</strong>
+            @endif
+            <br>{{ $complaint->admin_notes }}
         </div>
         @endif
     </div>

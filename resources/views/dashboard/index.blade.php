@@ -54,31 +54,37 @@
 <div class="row mb-3">
     <div class="col-6 col-md-2">
         <div class="small-box bg-gradient-primary text-white">
-            <div class="inner"><h3>{{ $summary['total'] }}</h3><p>Total Laporan</p></div>
+            <div class="inner"><h3 id="stat-total">{{ $summary['total'] }}</h3><p>Total Laporan</p></div>
             <div class="icon"><i class="fas fa-clipboard-list"></i></div>
         </div>
     </div>
     <div class="col-6 col-md-2">
         <div class="small-box bg-gradient-danger text-white">
-            <div class="inner"><h3>{{ $summary['open'] }}</h3><p>Open</p></div>
+            <div class="inner"><h3 id="stat-open">{{ $summary['open'] }}</h3><p>Open</p></div>
             <div class="icon"><i class="fas fa-inbox"></i></div>
         </div>
     </div>
     <div class="col-6 col-md-2">
         <div class="small-box bg-gradient-warning">
-            <div class="inner"><h3>{{ $summary['progress'] }}</h3><p>Progress</p></div>
+            <div class="inner"><h3 id="stat-progress">{{ $summary['progress'] }}</h3><p>Progress</p></div>
             <div class="icon"><i class="fas fa-spinner"></i></div>
         </div>
     </div>
     <div class="col-6 col-md-2">
         <div class="small-box bg-gradient-success text-white">
-            <div class="inner"><h3>{{ $summary['closed'] }}</h3><p>Closed</p></div>
+            <div class="inner"><h3 id="stat-closed">{{ $summary['closed'] }}</h3><p>Closed</p></div>
             <div class="icon"><i class="fas fa-check-circle"></i></div>
         </div>
     </div>
     <div class="col-6 col-md-2">
+        <div class="small-box text-dark" style="background:#e2e3e5;">
+            <div class="inner"><h3 id="stat-rejected">{{ $summary['rejected'] }}</h3><p>Rejected</p></div>
+            <div class="icon"><i class="fas fa-ban"></i></div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
         <div class="small-box text-white" style="background:linear-gradient(135deg,#c0392b,#922b21);">
-            <div class="inner"><h3>{{ $summary['overdue'] }}</h3><p>🚨 Overdue SLA</p></div>
+            <div class="inner"><h3 id="stat-overdue">{{ $summary['overdue'] }}</h3><p>Overdue SLA</p></div>
             <div class="icon"><i class="fas fa-exclamation-triangle"></i></div>
         </div>
     </div>
@@ -96,10 +102,9 @@
             @if(in_array('receptionist', $userTypes))
             <li class="nav-item">
                 <a class="nav-link" id="tab-rcp-link" data-toggle="tab" href="#tab-rcp" role="tab">
-                    <i class="fas fa-concierge-bell mr-1"></i> Resepsionis
-                    @if(isset($typeStats['receptionist']['open']) && $typeStats['receptionist']['open'] > 0)
-                        <span class="badge badge-danger badge-pill ml-1">{{ $typeStats['receptionist']['open'] }}</span>
-                    @endif
+                    <i class="fas fa-concierge-bell mr-1"></i> Receptionist
+                    <span class="badge badge-danger badge-pill ml-1" id="badge-rcp-open"
+                          style="{{ ($typeStats['receptionist']['open'] ?? 0) > 0 ? '' : 'display:none' }}">{{ $typeStats['receptionist']['open'] ?? 0 }}</span>
                 </a>
             </li>
             @endif
@@ -107,9 +112,8 @@
             <li class="nav-item">
                 <a class="nav-link" id="tab-hk-link" data-toggle="tab" href="#tab-hk" role="tab">
                     <i class="fas fa-broom mr-1"></i> Housekeeping
-                    @if(isset($typeStats['hk']['open']) && $typeStats['hk']['open'] > 0)
-                        <span class="badge badge-danger badge-pill ml-1">{{ $typeStats['hk']['open'] }}</span>
-                    @endif
+                    <span class="badge badge-danger badge-pill ml-1" id="badge-hk-open"
+                          style="{{ ($typeStats['hk']['open'] ?? 0) > 0 ? '' : 'display:none' }}">{{ $typeStats['hk']['open'] ?? 0 }}</span>
                 </a>
             </li>
             @endif
@@ -117,9 +121,8 @@
             <li class="nav-item">
                 <a class="nav-link" id="tab-ldy-link" data-toggle="tab" href="#tab-laundry" role="tab">
                     <i class="fas fa-tshirt mr-1"></i> Laundry
-                    @if(isset($typeStats['laundry']['open']) && $typeStats['laundry']['open'] > 0)
-                        <span class="badge badge-danger badge-pill ml-1">{{ $typeStats['laundry']['open'] }}</span>
-                    @endif
+                    <span class="badge badge-danger badge-pill ml-1" id="badge-ldy-open"
+                          style="{{ ($typeStats['laundry']['open'] ?? 0) > 0 ? '' : 'display:none' }}">{{ $typeStats['laundry']['open'] ?? 0 }}</span>
                 </a>
             </li>
             @endif
@@ -165,9 +168,9 @@
                             </div>
                             <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center;font-size:.77rem;">
                                 <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#dc3545;margin-right:4px;"></span>Open</span>
-                                <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffc107;margin-right:4px;"></span>In Progress</span>
-                                <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#198754;margin-right:4px;"></span>Resolved</span>
-                                <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#6c757d;margin-right:4px;"></span>Closed</span>
+                                <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffc107;margin-right:4px;"></span>Progress</span>
+                                <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#198754;margin-right:4px;"></span>Closed</span>
+                                <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#adb5bd;margin-right:4px;"></span>Rejected</span>
                             </div>
                         </div>
                     </div>
@@ -175,13 +178,18 @@
             </div>
 
             {{-- Outstanding SLA --}}
-            @if($outstanding->count() > 0)
+            <div id="outstanding-section" style="{{ $outstanding->count() === 0 ? 'display:none' : '' }}">
             <div class="card border-danger mb-3" style="border-width:2px!important;">
-                <div class="card-header" style="background:#fff5f5;border-bottom:1px solid #f8d7da;">
-                    <h3 class="card-title text-danger" style="font-size:.88rem;font-weight:700;">
+                <div class="card-header d-flex align-items-center justify-content-between" style="background:#fff5f5;border-bottom:1px solid #f8d7da;">
+                    <h3 class="card-title text-danger mb-0" style="font-size:.88rem;font-weight:700;">
                         <i class="fas fa-exclamation-triangle mr-2"></i>
-                        Outstanding — SLA Terlampaui ({{ $outstanding->count() }})
+                        Outstanding — SLA Terlampaui (<span id="outstanding-count">{{ $outstanding->count() }}</span>)
                     </h3>
+                    <span id="live-dot" title="Live update aktif"
+                          style="display:inline-flex;align-items:center;gap:5px;font-size:.72rem;color:#198754;">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#198754;display:inline-block;animation:livepulse 2s infinite;"></span>
+                        Live
+                    </span>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -197,7 +205,7 @@
                                     <th></th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="outstanding-tbody">
                                 @foreach($outstanding as $c)
                                 <tr class="overdue">
                                     <td><a href="{{ route('complaints.show', $c) }}" class="ticket-link">{{ $c->ticket_number }}</a></td>
@@ -214,13 +222,13 @@
                     </div>
                 </div>
             </div>
-            @endif
+            </div>
         </div>
 
-        {{-- ── Tab: Resepsionis ── --}}
+        {{-- ── Tab: Receptionist ── --}}
         @if(in_array('receptionist', $userTypes))
         <div class="tab-pane fade p-3" id="tab-rcp" role="tabpanel">
-            @include('dashboard._type_tab', ['type' => 'receptionist', 'label' => 'Resepsionis', 'icon' => 'fa-concierge-bell', 'color' => 'primary', 'stats' => $typeStats['receptionist'] ?? []])
+            @include('dashboard._type_tab', ['type' => 'receptionist', 'label' => 'Receptionist', 'icon' => 'fa-concierge-bell', 'color' => 'primary', 'stats' => $typeStats['receptionist'] ?? []])
         </div>
         @endif
 
@@ -244,35 +252,51 @@
 @endsection
 
 @push('scripts')
+<style>
+@keyframes livepulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: .4; transform: scale(1.3); }
+}
+@keyframes flashNum {
+    0%   { color: inherit; }
+    30%  { color: #0d6efd; }
+    100% { color: inherit; }
+}
+.num-updated { animation: flashNum .6s ease; }
+</style>
 <script>
+// ── Date range — diset dari PHP agar selalu konsisten dengan initial render ──
+let activeDateFrom = '{{ $dateFrom->format("Y-m-d") }}';
+let activeDateTo   = '{{ $dateTo->format("Y-m-d") }}';
+
 // ── Flatpickr ──
 flatpickr('#date_from', {
     dateFormat: 'Y-m-d',
     locale: { firstDayOfWeek: 1 },
     onChange: function(sel, str) {
         fpTo.set('minDate', str);
+        activeDateFrom = str;
     }
 });
 const fpTo = flatpickr('#date_to', {
     dateFormat: 'Y-m-d',
     locale: { firstDayOfWeek: 1 },
-    minDate: document.getElementById('date_from').value,
+    minDate: activeDateFrom,
+    onChange: function(sel, str) {
+        activeDateTo = str;
+    }
 });
 
 // ── Trend Chart ──
 const trendCtx  = document.getElementById('trendChart').getContext('2d');
-const chartData = @json($chartData);
-
-new Chart(trendCtx, {
+const trendChart = new Chart(trendCtx, {
     type: 'line',
-    data: chartData,
+    data: @json($chartData),
     options: {
         responsive: true,
         maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
-        plugins: {
-            legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
-        },
+        plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } } },
         scales: {
             y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } } },
             x: { ticks: { font: { size: 10 } } }
@@ -282,13 +306,13 @@ new Chart(trendCtx, {
 
 // ── Status Donut ──
 const statusCtx = document.getElementById('statusChart').getContext('2d');
-new Chart(statusCtx, {
+const statusChart = new Chart(statusCtx, {
     type: 'doughnut',
     data: {
-        labels: ['Open','Progress','Closed'],
+        labels: ['Open','Progress','Closed','Rejected'],
         datasets: [{
-            data: [{{ $summary['open'] }}, {{ $summary['progress'] }}, {{ $summary['closed'] }}],
-            backgroundColor: ['#dc3545','#ffc107','#198754'],
+            data: [{{ $summary['open'] }}, {{ $summary['progress'] }}, {{ $summary['closed'] }}, {{ $summary['rejected'] }}],
+            backgroundColor: ['#dc3545','#ffc107','#198754','#adb5bd'],
             borderWidth: 2, borderColor: '#fff',
         }]
     },
@@ -299,5 +323,119 @@ new Chart(statusCtx, {
         plugins: { legend: { display: false } }
     }
 });
+
+// ── Live Dashboard Update ──
+let _dashRefreshing = false;
+
+function setNum(id, val) {
+    const el = document.getElementById(id);
+    if (!el || String(el.textContent).trim() === String(val)) return;
+    el.textContent = val;
+    el.classList.remove('num-updated');
+    void el.offsetWidth;
+    el.classList.add('num-updated');
+}
+
+function setBadge(id, val) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = val;
+    el.style.display = val > 0 ? '' : 'none';
+}
+
+function renderOutstanding(list) {
+    const section = document.getElementById('outstanding-section');
+    const tbody   = document.getElementById('outstanding-tbody');
+    const count   = document.getElementById('outstanding-count');
+    if (!section || !tbody) return;
+
+    if (!list || list.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = '';
+    if (count) count.textContent = list.length;
+
+    tbody.innerHTML = list.map(c => `
+        <tr class="overdue">
+            <td><a href="${c.url}" class="ticket-link">${c.ticket}</a></td>
+            <td><span class="badge ${c.type_badge}">${c.type_label}</span></td>
+            <td>${c.reporter}</td>
+            <td><span class="badge ${c.status_badge}">${c.status_label}</span></td>
+            <td class="text-danger font-weight-bold" style="font-size:.82rem;">${c.sla_deadline ?? '—'}</td>
+            <td class="text-danger" style="font-size:.82rem;">${c.late_hours} jam</td>
+            <td><a href="${c.url}" class="btn btn-xs btn-outline-primary">Lihat</a></td>
+        </tr>`).join('');
+}
+
+window.refreshDashboard = async function() {
+    if (_dashRefreshing) return;
+    _dashRefreshing = true;
+    try {
+        const params = new URLSearchParams({
+            date_from: activeDateFrom,
+            date_to: activeDateTo,
+            _ts: Date.now().toString(),
+        });
+        const res = await fetch(`/api/dashboard-stats?${params}`, {
+            cache: 'no-store',
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content }
+        });
+        if (!res.ok) return;
+        const d = await res.json();
+
+        // Summary cards
+        setNum('stat-total',    d.summary.total);
+        setNum('stat-open',     d.summary.open);
+        setNum('stat-progress', d.summary.progress);
+        setNum('stat-closed',   d.summary.closed);
+        setNum('stat-rejected', d.summary.rejected ?? 0);
+        setNum('stat-overdue',  d.summary.overdue);
+
+        // Donut chart
+        statusChart.data.datasets[0].data = [
+            d.summary.open, d.summary.progress, d.summary.closed, d.summary.rejected ?? 0
+        ];
+        statusChart.update('none');
+
+        // Trend chart
+        trendChart.data.labels = d.chartData.labels;
+        trendChart.data.datasets.forEach((ds, i) => {
+            if (d.chartData.datasets[i]) {
+                ds.data = d.chartData.datasets[i].data;
+            }
+        });
+        trendChart.update('none');
+
+        // Per-type stats
+        ['receptionist','hk','laundry'].forEach(type => {
+            const s = d.typeStats[type];
+            if (!s) return;
+            setNum(`stat-${type}-total`,    s.total);
+            setNum(`stat-${type}-open`,     s.open);
+            setNum(`stat-${type}-progress`, s.progress);
+            setNum(`stat-${type}-closed`,   s.closed);
+            setNum(`stat-${type}-rejected`, s.rejected ?? 0);
+            setNum(`stat-${type}-overdue`,  s.overdue);
+
+            const al = document.getElementById(`overdue-alert-${type}`);
+            if (al) al.style.display = s.overdue > 0 ? '' : 'none';
+        });
+
+        // Tab open badges
+        setBadge('badge-rcp-open', d.typeStats.receptionist?.open ?? 0);
+        setBadge('badge-hk-open',  d.typeStats.hk?.open ?? 0);
+        setBadge('badge-ldy-open', d.typeStats.laundry?.open ?? 0);
+
+        // Outstanding table
+        renderOutstanding(d.outstanding);
+
+    } catch(e) {}
+    finally { _dashRefreshing = false; }
+};
+
+// Dashboard manages its own refresh interval (30s), independent of notification polling
+setInterval(window.refreshDashboard, 30000);
 </script>
 @endpush

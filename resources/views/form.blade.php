@@ -180,7 +180,7 @@
 
 <header class="topbar">
     <div class="brand">
-        <img src="{{ asset('icons/scm-logo-transparent.png') }}" alt="SCM Logo" class="brand-logo">
+        <img src="{{ asset('icons/GA-SCM.png') }}" alt="GA SCM Logo" class="brand-logo">
         <div class="brand-copy"><div class="name">SCM</div><div class="sub">Complaint Management</div></div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
@@ -209,7 +209,7 @@
 
     <div class="form-card">
         <div class="form-heading">
-            <img src="{{ asset('icons/scm-logo-transparent.png') }}" alt="SCM Logo" class="form-heading-logo">
+            <img src="{{ asset('icons/GA-SCM.png') }}" alt="GA SCM Logo" class="form-heading-logo">
             <div>
                 <div class="form-title">Form Komplain SCM</div>
                 <div class="form-sub">Isi semua data dengan benar agar laporan dapat ditangani dengan cepat.</div>
@@ -223,7 +223,7 @@
                 <label>Tipe Komplain <span class="req">*</span></label>
                 <select name="type" id="type-select" required onchange="onTypeChange(this.value)">
                     <option value="">-- Pilih Tipe --</option>
-                    <option value="receptionist" {{ old('type') === 'receptionist' ? 'selected' : '' }}>Resepsionis - Fasilitas Kamar</option>
+                    <option value="receptionist" {{ old('type') === 'receptionist' ? 'selected' : '' }}>Receptionist - Fasilitas Kamar</option>
                     <option value="hk" {{ old('type') === 'hk' ? 'selected' : '' }}>Housekeeping - Kebersihan Area</option>
                     <option value="laundry" {{ old('type') === 'laundry' ? 'selected' : '' }}>Laundry - Laporan Cucian</option>
                 </select>
@@ -240,7 +240,7 @@
                     $oldBuilding = old('building');
                     $isOtherBuilding = filled($oldBuilding) && !$buildingOptions->contains($oldBuilding);
                 @endphp
-                <select id="building-select" name="building" required onchange="toggleBuildingOther(this.value)">
+                <select id="building-select" name="building" required>
                     <option value="">-- Pilih Bangunan / Area --</option>
                     @foreach($buildingOptions as $b)
                         <option value="{{ $b }}" @selected($oldBuilding === $b)>{{ $b }}</option>
@@ -264,7 +264,7 @@
                     $oldCompany = old('company_name');
                     $isOtherCompany = filled($oldCompany) && !$companyOptions->contains($oldCompany);
                 @endphp
-                <select id="company-select" name="company_name" required onchange="toggleCompanyOther(this.value)">
+                <select id="company-select" name="company_name" required>
                     <option value="">-- Pilih Perusahaan --</option>
                     @foreach($companyOptions as $company)
                         <option value="{{ $company }}" @selected($oldCompany === $company)>{{ $company }}</option>
@@ -370,6 +370,10 @@
     </div>
 </div>
 </div>
+
+<footer style="text-align:center;padding:18px 16px;font-size:.76rem;color:#aaa;">
+    &copy; {{ date('Y') }} PT. Sulawesi Cahaya Mineral &mdash; SCM v2.0
+</footer>
 
 @if(request('tab') === 'cek')
 <script>
@@ -503,7 +507,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (buildingSelect) {
         new Choices(buildingSelect, {
             searchEnabled: true,
-            searchChoices: true,
             shouldSort: false,
             itemSelectText: '',
             placeholder: true,
@@ -511,16 +514,18 @@ document.addEventListener('DOMContentLoaded', () => {
             searchPlaceholderValue: 'Ketik nama bangunan...',
             noResultsText: 'Bangunan tidak ditemukan',
             noChoicesText: 'Tidak ada pilihan bangunan',
+            searchResultLimit: 999,
+            fuseOptions: { threshold: 0.3, minMatchCharLength: 1, keys: ['label', 'value'] },
         });
 
         toggleBuildingOther(buildingSelect.value);
+        buildingSelect.addEventListener('change', () => toggleBuildingOther(buildingSelect.value));
     }
 
     const companySelect = document.getElementById('company-select');
     if (companySelect) {
         new Choices(companySelect, {
             searchEnabled: true,
-            searchChoices: true,
             shouldSort: false,
             itemSelectText: '',
             placeholder: true,
@@ -528,9 +533,12 @@ document.addEventListener('DOMContentLoaded', () => {
             searchPlaceholderValue: 'Ketik nama perusahaan...',
             noResultsText: 'Perusahaan tidak ditemukan',
             noChoicesText: 'Tidak ada pilihan perusahaan',
+            searchResultLimit: 999,
+            fuseOptions: { threshold: 0.3, minMatchCharLength: 1, keys: ['label', 'value'] },
         });
 
         toggleCompanyOther(companySelect.value);
+        companySelect.addEventListener('change', () => toggleCompanyOther(companySelect.value));
     }
 
     const photoInput = document.getElementById('photos-input');
@@ -624,4 +632,3 @@ async function cekTiket() {
 </script>
 </body>
 </html>
-

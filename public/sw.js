@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ga-facility-pwa-v1';
+const CACHE_NAME = 'ga-facility-pwa-v3';
 const OFFLINE_URL = '/offline.html';
 const APP_SHELL = [
     '/',
@@ -37,6 +37,7 @@ self.addEventListener('fetch', (event) => {
     const requestUrl = new URL(event.request.url);
     const isNavigation = event.request.mode === 'navigate';
     const isSameOrigin = requestUrl.origin === self.location.origin;
+    const isApiRequest = isSameOrigin && requestUrl.pathname.startsWith('/api/');
 
     if (isNavigation) {
         event.respondWith(
@@ -58,6 +59,25 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // Always fetch dynamic API data from network to avoid stale dashboard counts.
+    if (isApiRequest) {
+        event.respondWith(
+            fetch(event.request, { cache: 'no-store' }).catch(() => {
+                return new Response(
+                    JSON.stringify({
+                        error: 'offline',
+                        message: 'Data live tidak tersedia saat offline.',
+                    }),
+                    {
+                        status: 503,
+                        headers: { 'Content-Type': 'application/json' },
+                    }
+                );
+            })
+        );
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request).then((cached) => {
             if (cached) {
@@ -69,6 +89,46 @@ self.addEventListener('fetch', (event) => {
                 caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseCopy));
                 return response;
             });
+        })
+    );
+});
+
+self.addEventListener('push', (event) => {
+    const payload = event.data ? event.data.json() : {};
+    const title = payload.title || 'Notifikasi Baru';
+    const options = {
+        body: payload.body || 'Ada pembaruan baru dari sistem.',
+        icon: payload.icon || '/icons/icon-192.png',
+        badge: payload.badge || '/icons/icon-192.png',
+        tag: payload.tag || 'ga-facility-notification',
+        data: {
+            url: payload.url || '/dashboard',
+            ...payload.data,
+        },
+    };
+
+    event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+
+    const targetUrl = event.notification.data?.url || '/dashboard';
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+            for (const client of clientList) {
+                if ('focus' in client) {
+                    client.navigate(targetUrl);
+                    return client.focus();
+                }
+            }
+
+            if (clients.openWindow) {
+                return clients.openWindow(targetUrl);
+            }
+
+            return undefined;
         })
     );
 });

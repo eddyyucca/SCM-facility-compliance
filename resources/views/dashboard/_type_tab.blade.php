@@ -16,7 +16,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:.78rem;">Total</span>
-                <span class="info-box-number" style="font-weight:700;">{{ $stats['total'] ?? 0 }}</span>
+                <span class="info-box-number" id="stat-{{ $type }}-total" style="font-weight:700;">{{ $stats['total'] ?? 0 }}</span>
             </div>
         </div>
     </div>
@@ -27,7 +27,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:.78rem;">Open</span>
-                <span class="info-box-number font-weight-bold text-danger">{{ $stats['open'] ?? 0 }}</span>
+                <span class="info-box-number font-weight-bold text-danger" id="stat-{{ $type }}-open">{{ $stats['open'] ?? 0 }}</span>
             </div>
         </div>
     </div>
@@ -38,7 +38,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:.78rem;">Progress</span>
-                <span class="info-box-number font-weight-bold" style="color:#856404;">{{ $stats['progress'] ?? 0 }}</span>
+                <span class="info-box-number font-weight-bold" id="stat-{{ $type }}-progress" style="color:#856404;">{{ $stats['progress'] ?? 0 }}</span>
             </div>
         </div>
     </div>
@@ -49,19 +49,31 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:.78rem;">Closed</span>
-                <span class="info-box-number font-weight-bold text-success">{{ $stats['closed'] ?? 0 }}</span>
+                <span class="info-box-number font-weight-bold text-success" id="stat-{{ $type }}-closed">{{ $stats['closed'] ?? 0 }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row mb-2">
+    <div class="col-6 col-md-3 mb-2">
+        <div class="info-box" style="border-radius:12px;">
+            <span class="info-box-icon elevation-0" style="border-radius:12px 0 0 12px;background:#adb5bd;">
+                <i class="fas fa-ban"></i>
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:.78rem;">Rejected</span>
+                <span class="info-box-number font-weight-bold" id="stat-{{ $type }}-rejected" style="color:#6c757d;">{{ $stats['rejected'] ?? 0 }}</span>
             </div>
         </div>
     </div>
 </div>
 
-@if(($stats['overdue'] ?? 0) > 0)
-<div class="alert alert-danger py-2 px-3 mb-3" style="border-radius:10px;font-size:.85rem;">
+<div id="overdue-alert-{{ $type }}" class="alert alert-danger py-2 px-3 mb-3"
+     style="border-radius:10px;font-size:.85rem;{{ ($stats['overdue'] ?? 0) > 0 ? '' : 'display:none' }}">
     <i class="fas fa-exclamation-triangle mr-2"></i>
-    <strong>{{ $stats['overdue'] }} laporan</strong> melewati batas SLA dan belum diselesaikan.
+    <strong><span id="stat-{{ $type }}-overdue">{{ $stats['overdue'] ?? 0 }}</span> laporan</strong> melewati batas SLA dan belum diselesaikan.
     <a href="{{ route('complaints.index', ['type' => $type, 'status' => 'open']) }}" class="ml-2 alert-link">Lihat sekarang -></a>
 </div>
-@endif
 
 <div class="card mb-0">
     <div class="card-header d-flex align-items-center justify-content-between py-2">
