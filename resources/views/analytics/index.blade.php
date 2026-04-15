@@ -3,6 +3,154 @@
 @section('page_title', 'Analitik Laporan')
 @section('breadcrumb', 'Analitik')
 
+@push('styles')
+<style>
+    .analytics-card {
+        border-radius: 18px !important;
+        overflow: hidden;
+        border: 1px solid rgba(15, 23, 42, 0.04) !important;
+        box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08) !important;
+    }
+
+    .analytics-card .card-header {
+        padding: 1rem 1.1rem !important;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border-bottom: 1px solid rgba(13, 110, 253, 0.08) !important;
+    }
+
+    .analytics-card .card-title {
+        display: flex;
+        align-items: center;
+        gap: .55rem;
+        margin: 0;
+        font-size: .92rem !important;
+        font-weight: 700 !important;
+        color: #18263f;
+    }
+
+    .analytics-card .card-body {
+        padding: 1.1rem 1.1rem 1.2rem;
+    }
+
+    .analytics-panel {
+        position: relative;
+    }
+
+    .analytics-panel::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+        z-index: 2;
+    }
+
+    .analytics-panel-primary {
+        --accent-start: #0d6efd;
+        --accent-end: #7ab8ff;
+    }
+
+    .analytics-panel-info {
+        --accent-start: #0dcaf0;
+        --accent-end: #7ee5ff;
+    }
+
+    .analytics-panel-warning {
+        --accent-start: #f59f00;
+        --accent-end: #ffd166;
+    }
+
+    .analytics-panel-success {
+        --accent-start: #198754;
+        --accent-end: #68d391;
+    }
+
+    .analytics-panel-danger {
+        --accent-start: #dc3545;
+        --accent-end: #ff8a8a;
+    }
+
+    .analytics-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .6rem;
+        justify-content: center;
+        margin-top: 1rem;
+        font-size: .78rem;
+        color: #526072;
+    }
+
+    .analytics-legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .35rem .65rem;
+        border-radius: 999px;
+        background: #f4f7fb;
+    }
+
+    .analytics-legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .analytics-sla-summary {
+        text-align: center;
+        margin-bottom: .75rem;
+        padding: .85rem;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
+    }
+
+    .analytics-sla-rate {
+        font-size: 2.1rem;
+        line-height: 1;
+        font-weight: 800;
+        margin-bottom: .25rem;
+    }
+
+    .analytics-sla-card .card-body {
+        padding-top: .95rem;
+        padding-bottom: 1rem;
+    }
+
+    .analytics-sla-chart-wrap {
+        max-width: 180px;
+        margin: 0 auto;
+    }
+
+    .analytics-table-card .card-body {
+        padding: 0;
+    }
+
+    .analytics-table-card .table thead th {
+        background: #f8fbff;
+        border-top: none;
+        padding-top: .9rem;
+        padding-bottom: .9rem;
+    }
+
+    .analytics-table-card .table tbody td {
+        padding-top: .8rem;
+        padding-bottom: .8rem;
+    }
+
+    @media (max-width: 768px) {
+        .analytics-card .card-header,
+        .analytics-card .card-body {
+            padding-left: .9rem !important;
+            padding-right: .9rem !important;
+        }
+
+        .analytics-sla-rate {
+            font-size: 1.9rem;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 
 {{-- Date Filter --}}
@@ -74,10 +222,10 @@
 <div class="row mb-4">
     {{-- Tren --}}
     <div class="col-md-8 mb-3">
-        <div class="card h-100">
-            <div class="card-header py-2">
-                <h3 class="card-title" style="font-size:.88rem;font-weight:700;">
-                    <i class="fas fa-chart-line text-primary mr-2"></i> Tren Laporan Masuk
+        <div class="card analytics-card analytics-panel analytics-panel-primary analytics-sla-card h-100">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-line text-primary"></i> Tren Laporan Masuk
                 </h3>
             </div>
             <div class="card-body">
@@ -87,18 +235,18 @@
     </div>
     {{-- Distribusi tipe --}}
     <div class="col-md-4 mb-3">
-        <div class="card h-100">
-            <div class="card-header py-2">
-                <h3 class="card-title" style="font-size:.88rem;font-weight:700;">
-                    <i class="fas fa-chart-pie text-info mr-2"></i> Distribusi per Tipe
+        <div class="card analytics-card analytics-panel analytics-panel-info h-100">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-pie text-info"></i> Distribusi per Tipe
                 </h3>
             </div>
             <div class="card-body d-flex flex-column align-items-center">
                 <canvas id="typeChart" style="max-height:180px;"></canvas>
-                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;justify-content:center;font-size:.78rem;">
+                <div class="analytics-legend">
                     @php $typeColors = ['receptionist'=>'#0d6efd','hk'=>'#198754','laundry'=>'#ffc107']; @endphp
                     @foreach($byType as $t => $cnt)
-                    <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:{{ $typeColors[$t]??'#aaa' }};margin-right:4px;"></span>
+                    <span class="analytics-legend-item"><span class="analytics-legend-dot" style="background:{{ $typeColors[$t]??'#aaa' }};"></span>
                     {{ ['receptionist'=>'Resepsionis','hk'=>'HK','laundry'=>'Laundry'][$t]??$t }}
                     ({{ $cnt }})</span>
                     @endforeach
@@ -111,10 +259,10 @@
 <div class="row mb-4">
     {{-- Hari dalam seminggu --}}
     <div class="col-md-6 mb-3">
-        <div class="card">
-            <div class="card-header py-2">
-                <h3 class="card-title" style="font-size:.88rem;font-weight:700;">
-                    <i class="fas fa-calendar-week text-warning mr-2"></i> Distribusi Hari dalam Seminggu
+        <div class="card analytics-card analytics-panel analytics-panel-warning h-100">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-calendar-week text-warning"></i> Distribusi Hari dalam Seminggu
                 </h3>
             </div>
             <div class="card-body"><canvas id="dowChart" height="120"></canvas></div>
@@ -122,10 +270,10 @@
     </div>
     {{-- Per jam --}}
     <div class="col-md-6 mb-3">
-        <div class="card">
-            <div class="card-header py-2">
-                <h3 class="card-title" style="font-size:.88rem;font-weight:700;">
-                    <i class="fas fa-clock text-success mr-2"></i> Jam Paling Banyak Laporan
+        <div class="card analytics-card analytics-panel analytics-panel-success h-100">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-clock text-success"></i> Jam Paling Banyak Laporan
                 </h3>
             </div>
             <div class="card-body"><canvas id="hourChart" height="120"></canvas></div>
@@ -136,33 +284,35 @@
 {{-- ── Row 3: Top Buildings ── --}}
 <div class="row mb-4">
     <div class="col-md-7 mb-3">
-        <div class="card">
-            <div class="card-header py-2">
-                <h3 class="card-title" style="font-size:.88rem;font-weight:700;">
-                    <i class="fas fa-building text-danger mr-2"></i> Top Bangunan dengan Keluhan Terbanyak
+        <div class="card analytics-card analytics-panel analytics-panel-danger h-100">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-building text-danger"></i> Top Bangunan dengan Keluhan Terbanyak
                 </h3>
             </div>
             <div class="card-body"><canvas id="buildingChart" height="160"></canvas></div>
         </div>
     </div>
     <div class="col-md-5 mb-3">
-        <div class="card">
-            <div class="card-header py-2">
-                <h3 class="card-title" style="font-size:.88rem;font-weight:700;">
-                    <i class="fas fa-shield-alt text-primary mr-2"></i> SLA Compliance
+        <div class="card analytics-card analytics-panel analytics-panel-primary analytics-sla-card h-100">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-shield-alt text-primary"></i> SLA Compliance
                 </h3>
             </div>
             <div class="card-body">
-                <div style="text-align:center;margin-bottom:16px;">
-                    <div style="font-size:2.5rem;font-weight:800;color:{{ $slaRate >= 80 ? '#198754' : ($slaRate >= 60 ? '#fd7e14' : '#dc3545') }};">
+                <div class="analytics-sla-summary">
+                    <div class="analytics-sla-rate" style="color:{{ $slaRate >= 80 ? '#198754' : ($slaRate >= 60 ? '#fd7e14' : '#dc3545') }};">
                         {{ $slaRate }}%
                     </div>
                     <div style="font-size:.82rem;color:#6c757d;">Tepat Waktu</div>
                 </div>
-                <canvas id="slaChart" height="140"></canvas>
-                <div style="display:flex;justify-content:center;gap:16px;margin-top:10px;font-size:.78rem;">
-                    <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#198754;margin-right:4px;"></span>Tepat Waktu ({{ $onTime }})</span>
-                    <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#dc3545;margin-right:4px;"></span>Terlambat ({{ $lateClose }})</span>
+                <div class="analytics-sla-chart-wrap">
+                    <canvas id="slaChart" height="96"></canvas>
+                </div>
+                <div class="analytics-legend">
+                    <span class="analytics-legend-item"><span class="analytics-legend-dot" style="background:#198754;"></span>Tepat Waktu ({{ $onTime }})</span>
+                    <span class="analytics-legend-item"><span class="analytics-legend-dot" style="background:#dc3545;"></span>Terlambat ({{ $lateClose }})</span>
                 </div>
             </div>
         </div>
@@ -170,13 +320,13 @@
 </div>
 
 {{-- ── Building detail table ── --}}
-<div class="card">
-    <div class="card-header d-flex align-items-center justify-content-between py-2">
-        <h3 class="card-title mb-0" style="font-size:.88rem;font-weight:700;">
-            <i class="fas fa-table text-secondary mr-2"></i> Detail Keluhan per Bangunan
+<div class="card analytics-card analytics-panel analytics-panel-info analytics-table-card">
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <h3 class="card-title mb-0">
+            <i class="fas fa-table text-secondary"></i> Detail Keluhan per Bangunan
         </h3>
     </div>
-    <div class="card-body p-0">
+    <div class="card-body">
         <div class="table-responsive">
             <table class="table table-sm table-hover mb-0">
                 <thead>
@@ -282,7 +432,7 @@ new Chart(document.getElementById('buildingChart').getContext('2d'), {
 new Chart(document.getElementById('slaChart').getContext('2d'), {
     type:'doughnut',
     data:{ labels:['Tepat Waktu','Terlambat'], datasets:[{ data:[ {{ $onTime }}, {{ $lateClose }} ], backgroundColor:['#198754','#dc3545'], borderWidth:2, borderColor:'#fff' }] },
-    options:{ responsive:true, cutout:'65%', plugins:{legend:{display:false}} }
+    options:{ responsive:true, maintainAspectRatio:true, radius:'82%', cutout:'68%', plugins:{legend:{display:false}} }
 });
 
 // Flatpickr

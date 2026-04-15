@@ -1,9 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login — GA Facility Compliance</title>
+    <title>Login - SCM Complaint Management</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192.png') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700" rel="stylesheet" />
     <style>
@@ -31,7 +33,7 @@
         .login-box {
             width: 100%;
             max-width: 420px;
-            background: rgba(255,255,255,.9);
+            background: rgba(255,255,255,.92);
             border: 1px solid var(--line);
             border-radius: 24px;
             padding: 36px 32px;
@@ -42,11 +44,13 @@
             margin-bottom: 28px;
         }
         .brand-icon {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
+            width: 200px;
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 14px;
         }
         .brand h1 {
-            font-size: 1.4rem;
+            font-size: 1.08rem;
             color: var(--brand-d);
         }
         .brand p {
@@ -77,11 +81,6 @@
             outline: none;
             border-color: var(--brand);
             box-shadow: 0 0 0 3px rgba(143,79,34,.1);
-        }
-        .error-msg {
-            color: #c0392b;
-            font-size: .82rem;
-            margin-top: 4px;
         }
         .remember {
             display: flex;
@@ -131,8 +130,8 @@
 <body>
 <div class="login-box">
     <div class="brand">
-        <div class="brand-icon">🏢</div>
-        <h1>GA Facility</h1>
+        <img src="{{ asset('icons/scm-logo-transparent.png') }}" alt="SCM Logo" class="brand-icon">
+        <h1>PT. Sulawesi Cahaya Mineral</h1>
         <p>Complaint Management System</p>
     </div>
 
@@ -148,20 +147,20 @@
             <label for="email">Email</label>
             <input type="email" id="email" name="email"
                    value="{{ old('email') }}"
-                   placeholder="contoh@ga.com" required autofocus />
+                   placeholder="contoh@scm.com" required autofocus />
         </div>
         <div class="field">
             <label for="password">Password</label>
             <input type="password" id="password" name="password"
-                   placeholder="••••••••" required />
+                   placeholder="Masukkan password" required />
         </div>
         <label class="remember">
             <input type="checkbox" name="remember"> Ingat saya
         </label>
-        <button type="submit" class="btn-login">Masuk →</button>
+        <button type="submit" class="btn-login">Masuk</button>
     </form>
 
-    <a href="{{ url('/') }}" class="back-link">← Kembali ke Form Laporan</a>
+    <a href="{{ url('/') }}" class="back-link">Kembali ke Form Laporan</a>
 
     <div class="demo-hint">
         <strong>Akun Demo:</strong><br>
@@ -172,3 +171,4 @@
 </div>
 </body>
 </html>
+

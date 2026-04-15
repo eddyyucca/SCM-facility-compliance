@@ -1,10 +1,19 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'GA Facility') — Complaint Management</title>
+    <meta name="theme-color" content="#0d6efd">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SCM">
+    <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icons/icon-192.png') }}">
+    <title>@yield('title', 'SCM') â€” Complaint Management</title>
 
     {{-- Font --}}
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -19,11 +28,79 @@
     <style>
         body { font-family: 'Figtree', sans-serif !important; background-color: #eef2f7 !important; }
 
-        /* ── Brand / Sidebar ── */
+        /* â”€â”€ Brand / Sidebar â”€â”€ */
         .main-sidebar { background: #0a1628 !important; }
         .brand-link    { background: #061020 !important; border-bottom: 1px solid rgba(255,255,255,.06) !important; }
         .brand-link .brand-text { color: #fff !important; font-weight: 700 !important; font-size: 1rem !important; }
         .brand-link:hover { background: #061020 !important; }
+        .brand-logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+        .brand-logo-image {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            flex-shrink: 0;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,.22));
+        }
+        .brand-logo-copy {
+            min-width: 0;
+            line-height: 1.1;
+        }
+        .brand-logo-copy strong {
+            display: block;
+            color: #fff;
+            font-size: .92rem;
+            font-weight: 700;
+        }
+        .brand-logo-copy span {
+            display: block;
+            color: rgba(255,255,255,.6);
+            font-size: .68rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .main-footer {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%) !important;
+            border-top: 1px solid #e3eaf4 !important;
+            padding: 14px 24px !important;
+        }
+        .footer-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .footer-brand img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+        }
+        .footer-brand strong {
+            display: block;
+            font-size: .86rem;
+            color: #18263f;
+        }
+        .footer-brand span {
+            display: block;
+            font-size: .76rem;
+            color: #7a8797;
+        }
+        .footer-meta {
+            text-align: right;
+            font-size: .76rem;
+            color: #97a3b3;
+        }
 
         .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active,
         [class*="sidebar-dark"] .nav-treeview > .nav-item > .nav-link.active {
@@ -53,7 +130,7 @@
         }
         .sidebar-footer .btn-logout:hover { background: rgba(255,255,255,.08); color: #fff; }
 
-        /* ── Navbar ── */
+        /* â”€â”€ Navbar â”€â”€ */
         .main-header.navbar {
             background: #fff !important;
             border-bottom: 1px solid #e3eaf4 !important;
@@ -62,7 +139,7 @@
         .main-header .navbar-brand { color: #0a1628 !important; font-weight: 700; }
         .nav-item .nav-link { color: #4a5568 !important; }
 
-        /* ── Notification bell ── */
+        /* â”€â”€ Notification bell â”€â”€ */
         #notif-bell { position: relative; }
         #notif-bell .notif-count {
             position: absolute; top: 2px; right: 2px;
@@ -95,13 +172,13 @@
         #sound-toggle:hover { background: #f0f4f8; }
         #sound-toggle.muted { color: #aaa; }
 
-        /* ── Content area ── */
+        /* â”€â”€ Content area â”€â”€ */
         .content-wrapper { background: #eef2f7 !important; }
         .content-header { padding: 16px 24px 0 !important; }
         .content-header h1 { font-size: 1.25rem !important; font-weight: 700 !important; }
         .content { padding: 16px 24px 24px !important; }
 
-        /* ── Cards ── */
+        /* â”€â”€ Cards â”€â”€ */
         .card {
             border: none !important;
             border-radius: 14px !important;
@@ -114,11 +191,11 @@
         .card-warning > .card-header { background: #ffc107 !important; color: #212529 !important; }
         .card-danger  > .card-header { background: #dc3545 !important; }
 
-        /* ── Info boxes / Small boxes ── */
+        /* â”€â”€ Info boxes / Small boxes â”€â”€ */
         .small-box { border-radius: 14px !important; }
         .small-box:hover { filter: brightness(1.03); }
 
-        /* ── Tabs ── */
+        /* â”€â”€ Tabs â”€â”€ */
         .nav-tabs .nav-link {
             border-radius: 10px 10px 0 0 !important;
             font-weight: 600 !important; font-size: .88rem !important;
@@ -130,7 +207,7 @@
             border-radius: 0 0 14px 14px; padding: 20px;
         }
 
-        /* ── Badges ── */
+        /* â”€â”€ Badges â”€â”€ */
         .badge-urgent  { background: #dc3545 !important; color: #fff !important; }
         .badge-high    { background: #fd7e14 !important; color: #fff !important; }
         .badge-medium  { background: #0d6efd !important; color: #fff !important; }
@@ -142,13 +219,13 @@
         .type-hk   { background: #d1e7dd !important; color: #0f5132 !important; }
         .type-ldy  { background: #fff3cd !important; color: #664d03 !important; }
 
-        /* ── Table ── */
+        /* â”€â”€ Table â”€â”€ */
         .table th { font-size: .78rem !important; text-transform: uppercase; letter-spacing: .04em; color: #6c757d; font-weight: 700; white-space: nowrap; }
         .table td { vertical-align: middle !important; }
         .ticket-link { color: #0d6efd; font-weight: 700; text-decoration: none; }
         .ticket-link:hover { text-decoration: underline; }
 
-        /* ── Date filter bar ── */
+        /* â”€â”€ Date filter bar â”€â”€ */
         .date-filter-bar {
             display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
             padding: 14px 18px; background: #fff;
@@ -161,10 +238,10 @@
             border: 1px solid #dee2e6; border-radius: 8px;
         }
 
-        /* ── Overdue row ── */
+        /* â”€â”€ Overdue row â”€â”€ */
         tr.overdue td { background: #fff5f5 !important; }
 
-        /* ── Toast notification ── */
+        /* â”€â”€ Toast notification â”€â”€ */
         #toast-container {
             position: fixed; top: 70px; right: 20px; z-index: 9999;
             display: flex; flex-direction: column; gap: 8px;
@@ -185,7 +262,7 @@
         .notif-toast .toast-close  { background: none; border: none; cursor: pointer; color: #aaa; font-size: .9rem; }
         @keyframes slideIn { from { transform: translateX(30px); opacity:0; } to { transform: translateX(0); opacity:1; } }
 
-        /* ── Responsive ── */
+        /* â”€â”€ Responsive â”€â”€ */
         @media (max-width: 768px) {
             .content { padding: 12px !important; }
             .tab-content { padding: 12px; }
@@ -199,7 +276,7 @@
 {{-- Toast container --}}
 <div id="toast-container"></div>
 
-{{-- ── Navbar ── --}}
+{{-- â”€â”€ Navbar â”€â”€ --}}
 <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <ul class="navbar-nav">
         <li class="nav-item">
@@ -240,7 +317,7 @@
                 <a href="{{ route('complaints.index') }}"
                    class="dropdown-item text-center py-2"
                    style="font-size:.82rem;font-weight:600;color:#0d6efd;border-top:1px solid #e9ecef;">
-                    Lihat Semua Laporan →
+                    Lihat Semua Laporan â†’
                 </a>
             </div>
         </li>
@@ -270,11 +347,15 @@
     </ul>
 </nav>
 
-{{-- ── Sidebar ── --}}
+{{-- â”€â”€ Sidebar â”€â”€ --}}
 <aside class="main-sidebar sidebar-dark-primary elevation-0">
     <a href="{{ route('dashboard') }}" class="brand-link px-3">
-        <span class="brand-text">
-            <i class="fas fa-building mr-2" style="color:#74b4ff;"></i>GA Facility
+        <span class="brand-text brand-logo-wrap">
+            <img src="{{ asset('icons/scm-logo-transparent.png') }}" alt="SCM Logo" class="brand-logo-image">
+            <span class="brand-logo-copy">
+                <strong>SCM</strong>
+                <span>Complaint Management</span>
+            </span>
         </span>
     </a>
 
@@ -314,7 +395,15 @@
                     </a>
                 </li>
 
-                @if(Auth::user()->isSuperAdmin())
+        @if(Auth::user()->isSuperAdmin())
+                <li class="nav-header">ADMIN</li>
+                <li class="nav-item">
+                    <a href="{{ route('users.index') }}"
+                       class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-user-cog"></i><p>Kelola Akun</p>
+                    </a>
+                </li>
+
                 <li class="nav-header">FILTER TIPE</li>
                 <li class="nav-item">
                     <a href="{{ route('complaints.index', ['type' => 'receptionist']) }}" class="nav-link">
@@ -362,7 +451,7 @@
     </div>
 </aside>
 
-{{-- ── Content Wrapper ── --}}
+{{-- â”€â”€ Content Wrapper â”€â”€ --}}
 <div class="content-wrapper">
     <div class="content-header">
         <div class="container-fluid">
@@ -401,15 +490,24 @@
     </div>
 </div>
 
-<footer class="main-footer" style="background:#fff;border-top:1px solid #e9ecef;">
-    <span style="font-size:.8rem;color:#aaa;">GA Facility Complaint Management &copy; {{ date('Y') }}</span>
-    <div class="float-right d-none d-sm-inline" style="font-size:.78rem;color:#ccc;">
-        v2.0 — AdminLTE 3.2
+<footer class="main-footer">
+    <div class="footer-wrap">
+        <div class="footer-brand">
+            <img src="{{ asset('icons/scm-logo-transparent.png') }}" alt="SCM Logo">
+            <div>
+                <strong>SCM Complaint Management</strong>
+                <span>Panel administrasi pelaporan fasilitas internal</span>
+            </div>
+        </div>
+        <div class="footer-meta">
+            <div>&copy; {{ date('Y') }} PT. Sulawesi Cahaya Mineral</div>
+            <div>Version 2.0</div>
+        </div>
     </div>
 </footer>
 </div>{{-- /wrapper --}}
 
-{{-- ── Scripts ── --}}
+{{-- â”€â”€ Scripts â”€â”€ --}}
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2.0/dist/js/adminlte.min.js"></script>
@@ -417,7 +515,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
-// ── Notification polling ──────────────────────────────────────────────
+// â”€â”€ Notification polling â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let soundEnabled = localStorage.getItem('ga_sound') !== 'false';
 let lastCheckTs  = new Date().toISOString();
 let pendingCount = 0;
@@ -461,14 +559,14 @@ function showToast(title, text, type='info') {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = 'notif-toast' + (type === 'warning' ? ' toast-warning' : '');
-    const icons = { info: '🔔', warning: '⚠️', success: '✅' };
+    const icons = { info: 'ðŸ””', warning: 'âš ï¸', success: 'âœ…' };
     toast.innerHTML = `
-        <span class="toast-icon">${icons[type] || '🔔'}</span>
+        <span class="toast-icon">${icons[type] || 'ðŸ””'}</span>
         <div class="toast-body">
             <div class="toast-title">${title}</div>
             <div class="toast-text">${text}</div>
         </div>
-        <button class="toast-close" onclick="this.closest('.notif-toast').remove()">✕</button>`;
+        <button class="toast-close" onclick="this.closest('.notif-toast').remove()">âœ•</button>`;
     container.prepend(toast);
     setTimeout(() => toast.remove(), 7000);
 }
@@ -479,12 +577,12 @@ function renderNotifList(complaints) {
         list.innerHTML = '<div class="notif-empty">Tidak ada notifikasi baru</div>';
         return;
     }
-    const typeIcon = { receptionist: '🛎️', hk: '🧹', laundry: '👕' };
+    const typeIcon = { receptionist: 'ðŸ›Žï¸', hk: 'ðŸ§¹', laundry: 'ðŸ‘•' };
     const typeBg   = { receptionist: '#cfe2ff', hk: '#d1e7dd', laundry: '#fff3cd' };
     list.innerHTML = complaints.map(c => `
         <div class="notif-item-row" onclick="window.location='/complaints/${c.id}'">
             <div class="notif-item-icon" style="background:${typeBg[c.type] || '#e9ecef'};">
-                ${typeIcon[c.type] || '📋'}
+                ${typeIcon[c.type] || 'ðŸ“‹'}
             </div>
             <div style="flex:1;min-width:0;">
                 <div style="font-weight:700;font-size:.82rem;">${c.ticket_number}</div>
@@ -521,8 +619,8 @@ async function pollNotifications() {
                 setTimeout(() => {
                     const typeLabel = { receptionist: 'Resepsionis', hk: 'Housekeeping', laundry: 'Laundry' }[c.type] || c.type;
                     showToast(
-                        `Laporan Baru — ${c.ticket_number}`,
-                        `${typeLabel} · ${c.reporter_name}`,
+                        `Laporan Baru â€” ${c.ticket_number}`,
+                        `${typeLabel} Â· ${c.reporter_name}`,
                         'info'
                     );
                 }, i * 400);
@@ -545,6 +643,14 @@ document.querySelector('#notif-bell > a').addEventListener('click', () => {
 setTimeout(pollNotifications, 5000);
 setInterval(pollNotifications, 30000);
 </script>
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('{{ asset('sw.js') }}').catch(() => {});
+    });
+}
+</script>
 @stack('scripts')
 </body>
 </html>
+

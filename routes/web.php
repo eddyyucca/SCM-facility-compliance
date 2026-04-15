@@ -7,6 +7,7 @@ use App\Http\Controllers\ComplaintController;
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\ReporterController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\UserManagementController;
 
 // ── Public: Complaint form ──────────────────────────────────
 Route::get('/', function () { return view('welcome'); })->name('home');
@@ -39,4 +40,14 @@ Route::middleware(['auth'])->group(function () {
 
     // Reporter analytics
     Route::get('/reporters', [ReporterController::class, 'index'])->name('reporters.index');
+
+    // User management
+    Route::middleware('role:superadmin')->group(function () {
+        Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+        Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
+        Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+    });
 });
