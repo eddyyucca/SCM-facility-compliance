@@ -29,8 +29,9 @@ class ReporterController extends Controller
 
         // Aggregate reporters by reporter_wa (phone)
         $rawData = Complaint::whereIn('type', $userTypes)
+            ->where('status', '!=', 'rejected')
             ->whereBetween('created_at', [$dateFrom, $dateTo])
-            ->get(['reporter_name', 'reporter_wa', 'type', 'status', 'building', 'created_at', 'ticket_number']);
+            ->get(['id', 'reporter_name', 'reporter_wa', 'type', 'status', 'building', 'created_at', 'ticket_number']);
 
         // Group by phone number
         $grouped = $rawData->groupBy(function ($c) {
@@ -40,6 +41,7 @@ class ReporterController extends Controller
         $reporters = $grouped->map(function ($items, $key) {
             $latest = $items->sortByDesc('created_at')->first();
             return [
+                'key'          => $key,
                 'phone'        => $latest->reporter_wa ?? '—',
                 'name'         => $latest->reporter_name,
                 'total'        => $items->count(),
@@ -57,24 +59,24 @@ class ReporterController extends Controller
 
         // Summary stats
         $totalComplaints  = $rawData->count();
-        $uniqueReporters  = $reporters->count();
         $topReporter      = $reporters->first();
 
-        // For detail: if phone provided, show all complaints from that reporter
-        $detailPhone     = $request->get('phone');
+        // For detail: use reporter key so rows without phone can still be opened
+        $detailReporterKey = $request->get('reporter');
+        $selectedReporter = null;
         $detailComplaints = null;
-        if ($detailPhone) {
-            $detailComplaints = Complaint::whereIn('type', $userTypes)
-                ->where('reporter_wa', $detailPhone)
-                ->whereBetween('created_at', [$dateFrom, $dateTo])
-                ->orderByDesc('created_at')
-                ->get();
+        if ($detailReporterKey && $grouped->has($detailReporterKey)) {
+            $selectedReporter = $reporters->firstWhere('key', $detailReporterKey);
+            $detailComplaints = $grouped->get($detailReporterKey)
+                ->sortByDesc('created_at')
+                ->values();
         }
 
         return view('reporters.index', compact(
-            'reporters', 'totalComplaints', 'uniqueReporters', 'topReporter',
-            'detailPhone', 'detailComplaints',
+            'reporters', 'totalComplaints', 'topReporter',
+            'detailReporterKey', 'selectedReporter', 'detailComplaints',
             'dateFrom', 'dateTo', 'preset', 'userTypes'
         ));
     }
 }
+

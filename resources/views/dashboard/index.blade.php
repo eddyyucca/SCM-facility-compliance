@@ -103,8 +103,8 @@
             <li class="nav-item">
                 <a class="nav-link" id="tab-rcp-link" data-toggle="tab" href="#tab-rcp" role="tab">
                     <i class="fas fa-concierge-bell mr-1"></i> Receptionist
-                    <span class="badge badge-danger badge-pill ml-1" id="badge-rcp-open"
-                          style="{{ ($typeStats['receptionist']['open'] ?? 0) > 0 ? '' : 'display:none' }}">{{ $typeStats['receptionist']['open'] ?? 0 }}</span>
+                    <span class="badge badge-danger badge-pill ml-1" id="badge-rcp-total"
+                          style="{{ ($typeStats['receptionist']['tab_total'] ?? 0) > 0 ? '' : 'display:none' }}">{{ $typeStats['receptionist']['tab_total'] ?? 0 }}</span>
                 </a>
             </li>
             @endif
@@ -112,8 +112,8 @@
             <li class="nav-item">
                 <a class="nav-link" id="tab-hk-link" data-toggle="tab" href="#tab-hk" role="tab">
                     <i class="fas fa-broom mr-1"></i> Housekeeping
-                    <span class="badge badge-danger badge-pill ml-1" id="badge-hk-open"
-                          style="{{ ($typeStats['hk']['open'] ?? 0) > 0 ? '' : 'display:none' }}">{{ $typeStats['hk']['open'] ?? 0 }}</span>
+                    <span class="badge badge-danger badge-pill ml-1" id="badge-hk-total"
+                          style="{{ ($typeStats['hk']['tab_total'] ?? 0) > 0 ? '' : 'display:none' }}">{{ $typeStats['hk']['tab_total'] ?? 0 }}</span>
                 </a>
             </li>
             @endif
@@ -121,8 +121,8 @@
             <li class="nav-item">
                 <a class="nav-link" id="tab-ldy-link" data-toggle="tab" href="#tab-laundry" role="tab">
                     <i class="fas fa-tshirt mr-1"></i> Laundry
-                    <span class="badge badge-danger badge-pill ml-1" id="badge-ldy-open"
-                          style="{{ ($typeStats['laundry']['open'] ?? 0) > 0 ? '' : 'display:none' }}">{{ $typeStats['laundry']['open'] ?? 0 }}</span>
+                    <span class="badge badge-danger badge-pill ml-1" id="badge-ldy-total"
+                          style="{{ ($typeStats['laundry']['tab_total'] ?? 0) > 0 ? '' : 'display:none' }}">{{ $typeStats['laundry']['tab_total'] ?? 0 }}</span>
                 </a>
             </li>
             @endif
@@ -424,9 +424,9 @@ window.refreshDashboard = async function() {
         });
 
         // Tab open badges
-        setBadge('badge-rcp-open', d.typeStats.receptionist?.open ?? 0);
-        setBadge('badge-hk-open',  d.typeStats.hk?.open ?? 0);
-        setBadge('badge-ldy-open', d.typeStats.laundry?.open ?? 0);
+        setBadge('badge-rcp-total', d.typeStats.receptionist?.tab_total ?? 0);
+        setBadge('badge-hk-total',  d.typeStats.hk?.tab_total ?? 0);
+        setBadge('badge-ldy-total', d.typeStats.laundry?.tab_total ?? 0);
 
         // Outstanding table
         renderOutstanding(d.outstanding);

@@ -51,6 +51,7 @@ class DashboardController extends Controller
             $tRej     = (clone $q)->where('status', 'rejected')->count();
             $typeStats[$type] = [
                 'total'    => $tOpen + $tProg + $tClosed + $tRej,
+                'tab_total' => $tOpen + $tProg + $tClosed,
                 'open'     => $tOpen,
                 'progress' => $tProg,
                 'closed'   => $tClosed,
@@ -120,6 +121,7 @@ class DashboardController extends Controller
             $tRej    = (clone $q)->where('status', 'rejected')->count();
             $typeStats[$type] = [
                 'total'    => $tOpen + $tProg + $tClosed + $tRej,
+                'tab_total' => $tOpen + $tProg + $tClosed,
                 'open'     => $tOpen,
                 'progress' => $tProg,
                 'closed'   => $tClosed,
