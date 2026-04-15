@@ -13,7 +13,7 @@
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('icons/icon-192.png') }}">
-    <title>@yield('title', 'SCM') â€” Complaint Management</title>
+    <title>@yield('title', 'SCM')  Complaint Management</title>
 
     {{-- Font --}}
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -619,7 +619,7 @@ async function pollNotifications() {
                 setTimeout(() => {
                     const typeLabel = { receptionist: 'Resepsionis', hk: 'Housekeeping', laundry: 'Laundry' }[c.type] || c.type;
                     showToast(
-                        `Laporan Baru â€” ${c.ticket_number}`,
+                        `Laporan Baru  ${c.ticket_number}`,
                         `${typeLabel} Â· ${c.reporter_name}`,
                         'info'
                     );
