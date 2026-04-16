@@ -129,15 +129,23 @@
                             @if(!empty($c->photos))
                                 @php
                                     $firstPhoto = $c->photos[0] ?? null;
+                                    $firstPhotoName = $firstPhoto ? basename($firstPhoto) : null;
+                                    $firstPhotoUrl = $firstPhotoName
+                                        ? (
+                                            \Illuminate\Support\Facades\Route::has('complaint.photos.show')
+                                                ? route('complaint.photos.show', ['filename' => $firstPhotoName])
+                                                : asset('storage/complaints/' . $firstPhotoName)
+                                        )
+                                        : null;
                                 @endphp
                                 <div class="d-flex align-items-center" style="gap:8px;">
                                     @if($firstPhoto)
                                     <button type="button"
                                             class="photo-thumb-button"
                                             data-photo-preview
-                                            data-photo-src="{{ asset('storage/' . $firstPhoto) }}"
+                                            data-photo-src="{{ $firstPhotoUrl }}"
                                             data-photo-title="Foto laporan {{ $c->ticket_number }}">
-                                        <img src="{{ asset('storage/' . $firstPhoto) }}"
+                                        <img src="{{ $firstPhotoUrl }}"
                                              alt="Foto {{ $c->ticket_number }}"
                                              class="photo-thumb-image">
                                     </button>

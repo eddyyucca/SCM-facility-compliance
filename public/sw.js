@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ga-facility-pwa-v3';
+const CACHE_NAME = 'ga-facility-pwa-v4';
 const OFFLINE_URL = '/offline.html';
 const APP_SHELL = [
     '/',
@@ -38,6 +38,10 @@ self.addEventListener('fetch', (event) => {
     const isNavigation = event.request.mode === 'navigate';
     const isSameOrigin = requestUrl.origin === self.location.origin;
     const isApiRequest = isSameOrigin && requestUrl.pathname.startsWith('/api/');
+    const isDynamicPhotoRequest = isSameOrigin && (
+        requestUrl.pathname.startsWith('/complaint-photos/') ||
+        requestUrl.pathname.startsWith('/storage/complaints/')
+    );
 
     if (isNavigation) {
         event.respondWith(
@@ -56,6 +60,13 @@ self.addEventListener('fetch', (event) => {
     }
 
     if (!isSameOrigin) {
+        return;
+    }
+
+    // Complaint photos are dynamic uploads. Never cache them, because cached
+    // 404 responses make newly uploaded photos look broken until SW refreshes.
+    if (isDynamicPhotoRequest) {
+        event.respondWith(fetch(event.request, { cache: 'no-store' }));
         return;
     }
 

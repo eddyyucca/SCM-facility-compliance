@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ComplaintController;
+use App\Http\Controllers\ComplaintPhotoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\ReporterController;
@@ -28,6 +29,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/complaints', [ComplaintController::class, 'index'])->name('complaints.index');
     Route::get('/complaints/{complaint}', [ComplaintController::class, 'show'])->name('complaints.show');
     Route::patch('/complaints/{complaint}/status', [ComplaintController::class, 'updateStatus'])->name('complaints.status');
+    Route::get('/complaint-photos/{filename}', [ComplaintPhotoController::class, 'show'])->name('complaint.photos.show');
 
     Route::get('/api/new-complaints', [DashboardController::class, 'newComplaints'])->name('api.new-complaints');
     Route::get('/api/dashboard-stats', [DashboardController::class, 'stats'])->name('api.dashboard-stats');

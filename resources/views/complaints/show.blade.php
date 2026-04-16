@@ -100,11 +100,17 @@
                     </div>
                     <div style="display:flex;flex-wrap:wrap;gap:10px;">
                         @foreach($complaint->photos as $i => $photo)
+                        @php
+                            $photoName = basename($photo);
+                            $photoUrl = \Illuminate\Support\Facades\Route::has('complaint.photos.show')
+                                ? route('complaint.photos.show', ['filename' => $photoName])
+                                : asset('storage/complaints/' . $photoName);
+                        @endphp
                         <button type="button" class="photo-thumb-button"
                                 data-photo-preview
-                                data-photo-src="{{ Storage::url($photo) }}"
+                                data-photo-src="{{ $photoUrl }}"
                                 data-photo-title="Foto {{ $i + 1 }} dari {{ count($complaint->photos) }}">
-                            <img src="{{ Storage::url($photo) }}"
+                            <img src="{{ $photoUrl }}"
                                  alt="Foto lampiran {{ $i + 1 }}"
                                  class="photo-thumb-image">
                         </button>
