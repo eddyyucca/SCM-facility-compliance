@@ -45,14 +45,14 @@
 <body>
 <div class="container">
     <div class="topbar">
-        <div class="brand"><i class="fas fa-building mr-2"></i>GA Facility</div>
+        <div class="brand"><i class="fas fa-building mr-2"></i>{{ $complaint instanceof \App\Models\HrRequest ? 'Human Resources' : 'GA Facility' }}</div>
         <a href="{{ url('/') }}"><i class="fas fa-home mr-1"></i> Form Laporan</a>
     </div>
 
     @if($complaint->isOverdue())
     <div class="overdue-warn">
         <i class="fas fa-exclamation-triangle mr-2"></i>
-        <strong>Perhatian:</strong> Laporan ini melewati batas waktu SLA. Tim GA sedang menindaklanjuti.
+        <strong>Perhatian:</strong> Laporan ini melewati batas waktu SLA. Tim {{ $complaint instanceof \App\Models\HrRequest ? 'Human Resources' : 'GA' }} sedang menindaklanjuti.
     </div>
     @endif
 
@@ -61,7 +61,7 @@
         <i class="fas fa-ban fa-lg"></i>
         <div>
             <strong>Laporan Ditolak</strong><br>
-            Permintaan Anda tidak dapat diproses. Silakan hubungi tim GA secara langsung jika ada pertanyaan lebih lanjut.
+            Permintaan Anda tidak dapat diproses. Silakan hubungi tim {{ $complaint instanceof \App\Models\HrRequest ? 'Human Resources' : 'GA' }} secara langsung jika ada pertanyaan lebih lanjut.
         </div>
     </div>
     @endif
@@ -70,7 +70,7 @@
     <div class="card">
         <div class="ticket-num">{{ $complaint->ticket_number }}</div>
         <div class="badges">
-            <span class="badge" style="background:{{ ['receptionist'=>'#cfe2ff','hk'=>'#d1e7dd','laundry'=>'#fff3cd'][$complaint->type] ?? '#e9ecef' }};color:{{ ['receptionist'=>'#084298','hk'=>'#0f5132','laundry'=>'#664d03'][$complaint->type] ?? '#495057' }};">
+            <span class="badge" style="background:{{ $complaint instanceof \App\Models\HrRequest ? '#d1e7dd' : (['receptionist'=>'#cfe2ff','hk'=>'#d1e7dd','laundry'=>'#fff3cd'][$complaint->type] ?? '#e9ecef') }};color:{{ $complaint instanceof \App\Models\HrRequest ? '#0f5132' : (['receptionist'=>'#084298','hk'=>'#0f5132','laundry'=>'#664d03'][$complaint->type] ?? '#495057') }};">
                 {{ $complaint->typeLabel() }}
             </span>
             <span class="badge" style="background:{{ $complaint->statusColor() }}22;color:{{ $complaint->statusColor() }};">
@@ -90,7 +90,7 @@
             <div class="step">
                 <div class="step-dot {{ in_array($complaint->status, ['progress','closed']) ? ($complaint->status === 'progress' ? 'active' : 'done') : 'pending' }}"></div>
                 <div class="step-title" style="{{ $complaint->status === 'open' ? 'color:#aaa' : '' }}">Progress — Sedang Ditangani</div>
-                <div class="step-desc">{{ $complaint->status === 'open' ? 'Menunggu tindakan tim GA' : 'Tim GA sedang menangani laporan' }}</div>
+                <div class="step-desc">{{ $complaint->status === 'open' ? 'Menunggu tindakan tim ' . ($complaint instanceof \App\Models\HrRequest ? 'Human Resources' : 'GA') : 'Tim ' . ($complaint instanceof \App\Models\HrRequest ? 'Human Resources' : 'GA') . ' sedang menangani laporan' }}</div>
             </div>
             <div class="step">
                 <div class="step-dot {{ $complaint->status === 'closed' ? 'active' : 'pending' }}"></div>
@@ -114,11 +114,14 @@
     {{-- Detail --}}
     <div class="card">
         <div style="font-size:.82rem;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.05em;margin-bottom:14px;">Detail Laporan</div>
-        <div class="info-row"><span class="lbl">Pelapor</span><span class="val">{{ $complaint->reporter_name }}</span></div>
-        @if($complaint->building)
+        <div class="info-row"><span class="lbl">Pelapor</span><span class="val">{{ $complaint instanceof \App\Models\HrRequest ? $complaint->employee_name : $complaint->reporter_name }}</span></div>
+        @if($complaint instanceof \App\Models\HrRequest)
+        <div class="info-row"><span class="lbl">Departemen</span><span class="val">{{ $complaint->department }}</span></div>
+        <div class="info-row"><span class="lbl">Layanan</span><span class="val">{{ $complaint->service_type }}</span></div>
+        @elseif($complaint->building)
         <div class="info-row"><span class="lbl">Bangunan</span><span class="val">{{ $complaint->building }}</span></div>
         @endif
-        @if($complaint->room_number)
+        @if(!($complaint instanceof \App\Models\HrRequest) && $complaint->room_number)
         <div class="info-row"><span class="lbl">No. Kamar</span><span class="val">{{ $complaint->room_number }}</span></div>
         @endif
         <div class="info-row"><span class="lbl">Target SLA</span>
@@ -136,7 +139,7 @@
             @if($complaint->status === 'rejected')
                 <strong style="font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:#6c757d;">Alasan Penolakan:</strong>
             @else
-                <strong style="font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:#198754;">Catatan Tim GA:</strong>
+                <strong style="font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;color:#198754;">Catatan Tim {{ $complaint instanceof \App\Models\HrRequest ? 'Human Resources' : 'GA' }}:</strong>
             @endif
             <br>{{ $complaint->admin_notes }}
         </div>
@@ -144,7 +147,7 @@
     </div>
 
     <div style="text-align:center;padding:16px 0;font-size:.78rem;color:var(--muted);">
-        GA Facility Complaint Management — {{ now()->format('Y') }}
+        SEDIA Service Management - {{ now()->format('Y') }}
     </div>
 </div>
 </body>

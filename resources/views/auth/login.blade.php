@@ -3,17 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login - SCM Complaint Management</title>
+    <title>Login - SEDIA Service Management</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <link rel="apple-touch-icon" href="{{ asset('icons/icon-192.png') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700" rel="stylesheet" />
     <style>
         :root {
-            --bg: #edf4ff;
-            --brand: #0d6efd;
-            --brand-d: #0a58ca;
-            --line: #d8e5fb;
+            --bg: #eef7f3;
+            --brand: #0f766e;
+            --brand-d: #115e59;
+            --brand-l: #e6fffb;
+            --line: #cfe5df;
             --text: #1b2a46;
             --muted: #6d7f9d;
         }
@@ -22,8 +23,8 @@
             font-family: 'Figtree', sans-serif;
             min-height: 100vh;
             background:
-                radial-gradient(circle at top left, rgba(116,180,255,.35), transparent 30%),
-                radial-gradient(circle at bottom right, rgba(13,110,253,.16), transparent 28%),
+                radial-gradient(circle at top left, rgba(15,118,110,.18), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(17,94,89,.14), transparent 28%),
                 linear-gradient(180deg, #f6faff 0%, var(--bg) 100%);
             display: flex;
             align-items: center;
@@ -37,14 +38,14 @@
             border: 1px solid var(--line);
             border-radius: 24px;
             padding: 36px 32px;
-            box-shadow: 0 24px 60px rgba(13,110,253,.12);
+            box-shadow: 0 24px 60px rgba(15,118,110,.13);
         }
         .brand {
             text-align: center;
             margin-bottom: 28px;
         }
         .brand-icon {
-            width: 200px;
+            width: 240px;
             max-width: 100%;
             height: auto;
             margin-bottom: 14px;
@@ -80,7 +81,7 @@
         .field input:focus {
             outline: none;
             border-color: var(--brand);
-            box-shadow: 0 0 0 3px rgba(13,110,253,.12);
+            box-shadow: 0 0 0 3px rgba(15,118,110,.12);
         }
         .remember {
             display: flex;
@@ -101,7 +102,7 @@
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(13,110,253,.22);
+            box-shadow: 0 8px 20px rgba(15,118,110,.22);
             transition: filter .2s;
         }
         .btn-login:hover { filter: brightness(1.05); }
@@ -117,7 +118,7 @@
         .demo-hint {
             margin-top: 24px;
             padding: 14px;
-            background: #f4f8ff;
+            background: var(--brand-l);
             border: 1px solid var(--line);
             border-radius: 12px;
             font-size: .78rem;
@@ -130,7 +131,7 @@
 <body>
 <div class="login-box">
     <div class="brand">
-        <img src="{{ asset('icons/GA-SCM.png') }}" alt="GA SCM Logo" class="brand-icon">
+        <img src="{{ asset('img/sedia-header-transparent.png') }}" alt="SEDIA Logo" class="brand-icon">
         <h1>PT. Sulawesi Cahaya Mineral</h1>
         <p>Complaint Management System</p>
     </div>

@@ -36,11 +36,11 @@
         .brand-logo-wrap {
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
             min-width: 0;
         }
         .brand-logo-image {
-            width: 42px;
+            width: 128px;
             height: 42px;
             object-fit: contain;
             flex-shrink: 0;
@@ -53,13 +53,13 @@
         .brand-logo-copy strong {
             display: block;
             color: #fff;
-            font-size: .92rem;
+            font-size: .84rem;
             font-weight: 700;
         }
         .brand-logo-copy span {
             display: block;
             color: rgba(255,255,255,.6);
-            font-size: .68rem;
+            font-size: .62rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -75,16 +75,96 @@
             background: rgba(13,110,253,.25) !important;
             color: #fff !important;
         }
-        [class*="sidebar-dark"] .nav-sidebar .nav-link { color: rgba(255,255,255,.68) !important; }
+        [class*="sidebar-dark"] .nav-sidebar .nav-link {
+            color: rgba(255,255,255,.68) !important;
+            border-radius: 8px !important;
+            font-size: .8rem;
+            line-height: 1.15;
+            min-height: 29px;
+            padding: .34rem 1.9rem .34rem .56rem !important;
+        }
         [class*="sidebar-dark"] .nav-sidebar .nav-link:hover { background: rgba(255,255,255,.07) !important; color: #fff !important; }
         [class*="sidebar-dark"] .nav-sidebar .nav-link i { color: rgba(255,255,255,.45) !important; }
         [class*="sidebar-dark"] .nav-sidebar .nav-link.active i { color: #74b4ff !important; }
+        .nav-sidebar > .nav-item {
+            margin: 0 4px 2px;
+        }
+        .nav-sidebar > .nav-item.has-treeview {
+            margin-top: 6px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+        }
+        .nav-sidebar > .nav-item.has-treeview > .nav-link {
+            font-size: .82rem;
+            font-weight: 700;
+            background: rgba(255,255,255,.045);
+        }
+        .nav-sidebar .nav-link p {
+            max-width: calc(100% - 18px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .nav-sidebar .nav-link > .right,
+        .nav-sidebar .nav-link > p > .right {
+            right: .54rem !important;
+            top: .52rem !important;
+            font-size: .72rem;
+        }
+        .nav-sidebar > .nav-item.has-treeview.menu-open > .nav-link {
+            background: rgba(13,110,253,.16) !important;
+        }
+        .nav-sidebar .nav-treeview {
+            margin: 3px 0 0 10px;
+            padding: 1px 0 1px 6px;
+            border-left: 1px solid rgba(255,255,255,.12);
+        }
+        .nav-sidebar .nav-treeview > .nav-item {
+            margin: 0;
+        }
+        .nav-sidebar .nav-treeview > .nav-item > .nav-link {
+            min-height: 26px;
+            padding: .26rem .48rem !important;
+            font-size: .75rem;
+        }
+        .nav-sidebar .nav-treeview > .nav-item:not(:last-child) > .nav-link {
+            border-bottom: 1px solid rgba(255,255,255,.055);
+            border-radius: 0 !important;
+        }
+        .nav-sidebar .nav-treeview > .nav-item > .nav-link .nav-icon {
+            font-size: .72rem;
+            width: 1.18rem;
+        }
         .nav-sidebar .nav-header { color: rgba(255,255,255,.3) !important; font-size: .68rem !important; }
+        .nav-sidebar .nav-header.sidebar-section {
+            margin: 10px 6px 6px !important;
+            padding: 5px 8px !important;
+            border-radius: 8px;
+            color: rgba(255,255,255,.84) !important;
+            font-size: .62rem !important;
+            font-weight: 800 !important;
+            letter-spacing: .08em;
+        }
+        .nav-sidebar .nav-header.sidebar-section-ga {
+            background: rgba(13,110,253,.16);
+            border-left: 3px solid #74b4ff;
+        }
+        .nav-sidebar .nav-header.sidebar-section-hr {
+            background: rgba(15,118,110,.2);
+            border-left: 3px solid #2dd4bf;
+        }
+        .nav-sidebar .nav-header.sidebar-section-admin {
+            background: rgba(255,255,255,.08);
+            border-left: 3px solid rgba(255,255,255,.4);
+        }
 
         /* User panel at bottom */
         /* Sidebar flex agar footer selalu di bawah */
-        .main-sidebar .sidebar { display: flex; flex-direction: column; height: calc(100% - 57px); }
-        .main-sidebar .sidebar nav { flex: 1; overflow-y: auto; }
+        .main-sidebar .sidebar { display: flex; flex-direction: column; height: calc(100% - 57px); padding-left: 4px; padding-right: 3px; }
+        .main-sidebar .sidebar nav { flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 3px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,.22) transparent; }
+        .main-sidebar .sidebar nav::-webkit-scrollbar { width: 5px; }
+        .main-sidebar .sidebar nav::-webkit-scrollbar-track { background: transparent; }
+        .main-sidebar .sidebar nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.22); border-radius: 999px; }
         .sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.07); flex-shrink: 0; }
         .sidebar-footer .user-name { color: #fff; font-weight: 600; font-size: .85rem; }
         .sidebar-footer .user-role {
@@ -411,11 +491,7 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-0">
     <a href="{{ route('dashboard') }}" class="brand-link px-3">
         <span class="brand-text brand-logo-wrap">
-            <img src="{{ asset('icons/GA-SCM.png') }}" alt="GA SCM Logo" class="brand-logo-image">
-            <span class="brand-logo-copy">
-                <strong>SCM</strong>
-                <span>Complaint Management</span>
-            </span>
+            <img src="{{ asset('img/sedia.png') }}" alt="SEDIA Logo" class="brand-logo-image">
         </span>
     </a>
 
@@ -423,87 +499,154 @@
         <nav class="mt-2 pb-2">
             <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu">
 
-                <li class="nav-header">MENU UTAMA</li>
+                @php
+                    $gaMenuOpen = request()->routeIs('dashboard')
+                        || request()->routeIs('complaints.*')
+                        || request()->routeIs('analytics.*')
+                        || request()->routeIs('reporters.*');
+                    $hrMenuOpen = request()->routeIs('hr.*');
+                @endphp
 
-                <li class="nav-item">
-                    <a href="{{ route('dashboard') }}"
-                       class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
-                        <p>Dashboard</p>
+                <li class="nav-item has-treeview {{ $gaMenuOpen ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ $gaMenuOpen ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-building"></i>
+                        <p>
+                            General Affairs
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
                     </a>
-                </li>
-
-                <li class="nav-header">LAPORAN</li>
-
-                <li class="nav-item">
-                    <a href="{{ route('complaints.index') }}"
-                       class="nav-link {{ request()->routeIs('complaints.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-clipboard-list"></i>
-                        <p>Semua Laporan</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('complaints.index', ['status' => 'open']) }}" class="nav-link">
-                        <i class="nav-icon fas fa-circle" style="color:#dc3545;font-size:.55rem;margin-top:.35rem;"></i>
-                        <p>Open</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('complaints.index', ['status' => 'progress']) }}" class="nav-link">
-                        <i class="nav-icon fas fa-circle" style="color:#ffc107;font-size:.55rem;margin-top:.35rem;"></i>
-                        <p>Progress</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('complaints.index', ['overdue' => '1']) }}"
-                       class="nav-link {{ request()->routeIs('complaints.*') && request()->boolean('overdue') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-exclamation-triangle" style="color:#dc3545;"></i>
-                        <p>Overdue SLA</p>
-                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('dashboard') }}"
+                               class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>Dashboard GA</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('complaints.index') }}"
+                               class="nav-link {{ request()->routeIs('complaints.*') && !request()->filled('status') && !request()->boolean('overdue') && !request()->filled('type') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-clipboard-list"></i>
+                                <p>Semua Laporan GA</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('complaints.index', ['status' => 'open']) }}"
+                               class="nav-link {{ request()->routeIs('complaints.*') && request('status') === 'open' ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-circle" style="color:#dc3545;font-size:.55rem;margin-top:.35rem;"></i>
+                                <p>GA Open</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('complaints.index', ['status' => 'progress']) }}"
+                               class="nav-link {{ request()->routeIs('complaints.*') && request('status') === 'progress' ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-circle" style="color:#ffc107;font-size:.55rem;margin-top:.35rem;"></i>
+                                <p>GA Progress</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('complaints.index', ['overdue' => '1']) }}"
+                               class="nav-link {{ request()->routeIs('complaints.*') && request()->boolean('overdue') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-exclamation-triangle" style="color:#dc3545;"></i>
+                                <p>GA Overdue SLA</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('complaints.index', ['type' => 'receptionist']) }}"
+                               class="nav-link {{ request()->routeIs('complaints.*') && request('type') === 'receptionist' ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-concierge-bell"></i><p>GA Receptionist</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('complaints.index', ['type' => 'hk']) }}"
+                               class="nav-link {{ request()->routeIs('complaints.*') && request('type') === 'hk' ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-broom"></i><p>GA Housekeeping</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('complaints.index', ['type' => 'laundry']) }}"
+                               class="nav-link {{ request()->routeIs('complaints.*') && request('type') === 'laundry' ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-tshirt"></i><p>GA Laundry</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('analytics.index') }}"
+                               class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-chart-bar"></i><p>Analitik GA</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('reporters.index') }}"
+                               class="nav-link {{ request()->routeIs('reporters.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-users"></i><p>Pelapor GA</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
         @if(Auth::user()->isSuperAdmin())
-                <li class="nav-header">ADMIN</li>
+                <li class="nav-item has-treeview {{ $hrMenuOpen ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ $hrMenuOpen ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-user-tie"></i>
+                        <p>
+                            Human Resources
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('hr.dashboard') }}"
+                               class="nav-link {{ request()->routeIs('hr.dashboard') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-chart-line"></i><p>Dashboard HR</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('hr.requests.index') }}"
+                               class="nav-link {{ request()->routeIs('hr.requests.*') && !request()->filled('status') && !request()->boolean('overdue') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-clipboard-check"></i><p>Semua Laporan HR</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('hr.requests.index', ['status' => 'open']) }}"
+                               class="nav-link {{ request()->routeIs('hr.requests.*') && request('status') === 'open' ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-circle" style="color:#dc3545;font-size:.55rem;margin-top:.35rem;"></i>
+                                <p>HR Open</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('hr.requests.index', ['status' => 'progress']) }}"
+                               class="nav-link {{ request()->routeIs('hr.requests.*') && request('status') === 'progress' ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-circle" style="color:#ffc107;font-size:.55rem;margin-top:.35rem;"></i>
+                                <p>HR Progress</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('hr.requests.index', ['status' => 'closed']) }}"
+                               class="nav-link {{ request()->routeIs('hr.requests.*') && request('status') === 'closed' ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-check-circle" style="color:#198754;"></i>
+                                <p>HR Penyelesaian</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('hr.requests.index', ['overdue' => '1']) }}"
+                               class="nav-link {{ request()->routeIs('hr.requests.*') && request()->boolean('overdue') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-exclamation-triangle" style="color:#dc3545;"></i>
+                                <p>HR Overdue SLA</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-header sidebar-section sidebar-section-admin">ADMINISTRASI</li>
                 <li class="nav-item">
                     <a href="{{ route('users.index') }}"
                        class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user-cog"></i><p>Kelola Akun</p>
                     </a>
                 </li>
-
-                <li class="nav-header">FILTER TIPE</li>
-                <li class="nav-item">
-                    <a href="{{ route('complaints.index', ['type' => 'receptionist']) }}" class="nav-link">
-                        <i class="nav-icon fas fa-concierge-bell"></i><p>Receptionist</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('complaints.index', ['type' => 'hk']) }}" class="nav-link">
-                        <i class="nav-icon fas fa-broom"></i><p>Housekeeping</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('complaints.index', ['type' => 'laundry']) }}" class="nav-link">
-                        <i class="nav-icon fas fa-tshirt"></i><p>Laundry</p>
-                    </a>
-                </li>
                 @endif
 
-                <li class="nav-header">ANALITIK</li>
-                <li class="nav-item">
-                    <a href="{{ route('analytics.index') }}"
-                       class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-chart-bar"></i><p>Analitik Laporan</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('reporters.index') }}"
-                       class="nav-link {{ request()->routeIs('reporters.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-users"></i><p>Analitik Pelapor</p>
-                    </a>
-                </li>
-
-                <li class="nav-header">LAINNYA</li>
+                <li class="nav-header sidebar-section sidebar-section-admin">LAINNYA</li>
                 <li class="nav-item">
                     <a href="{{ url('/') }}" target="_blank" class="nav-link">
                         <i class="nav-icon fas fa-external-link-alt"></i>

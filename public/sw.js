@@ -39,6 +39,7 @@ self.addEventListener('fetch', (event) => {
     const isSameOrigin = requestUrl.origin === self.location.origin;
     const isApiRequest = isSameOrigin && requestUrl.pathname.startsWith('/api/');
     const isDynamicPhotoRequest = isSameOrigin && (
+        requestUrl.pathname === '/complaint-photo.php' ||
         requestUrl.pathname.startsWith('/complaint-photos/') ||
         requestUrl.pathname.startsWith('/storage/complaints/')
     );

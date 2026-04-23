@@ -102,9 +102,7 @@
                         @foreach($complaint->photos as $i => $photo)
                         @php
                             $photoName = basename($photo);
-                            $photoUrl = \Illuminate\Support\Facades\Route::has('complaint.photos.show')
-                                ? route('complaint.photos.show', ['filename' => $photoName])
-                                : asset('storage/complaints/' . $photoName);
+                            $photoUrl = asset('complaint-photo.php') . '?f=' . rawurlencode($photoName) . '&v=' . $complaint->updated_at->timestamp;
                         @endphp
                         <button type="button" class="photo-thumb-button"
                                 data-photo-preview

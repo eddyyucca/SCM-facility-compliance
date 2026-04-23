@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Laporan Terkirim — {{ $complaint->ticket_number }}</title>
+    <title>Laporan Terkirim - {{ $complaint->ticket_number }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -43,7 +43,7 @@
     <div class="success-icon"><i class="fas fa-check"></i></div>
     <div class="title">Laporan Berhasil Dikirim!</div>
     <div class="subtitle">
-        Laporan Anda telah diterima. Tim GA akan menindaklanjuti sesuai prioritas.<br>
+        Laporan Anda telah diterima. Tim {{ $complaint instanceof \App\Models\HrRequest ? 'Human Resources' : 'GA' }} akan menindaklanjuti sesuai prioritas.<br>
         Simpan nomor tiket berikut untuk memantau status.
     </div>
 
@@ -59,13 +59,18 @@
             <div class="lbl">Tipe</div>
             <div class="val">{{ $complaint->typeLabel() }}</div>
         </div>
-        @if($complaint->building)
+        @if($complaint instanceof \App\Models\HrRequest)
+        <div class="info-item">
+            <div class="lbl">Departemen</div>
+            <div class="val">{{ $complaint->department }}</div>
+        </div>
+        @elseif($complaint->building)
         <div class="info-item">
             <div class="lbl">Bangunan</div>
             <div class="val">{{ $complaint->building }}</div>
         </div>
         @endif
-        @if($complaint->room_number)
+        @if(!($complaint instanceof \App\Models\HrRequest) && $complaint->room_number)
         <div class="info-item">
             <div class="lbl">No. Kamar</div>
             <div class="val">{{ $complaint->room_number }}</div>
@@ -110,7 +115,7 @@
     <div class="sla-info">
         <i class="fas fa-clock text-primary mr-1"></i>
         <strong>Estimasi Penanganan:</strong>
-        {{ \App\Models\Complaint::$slaHours[$complaint->type][$complaint->priority] ?? 24 }} jam
+        {{ method_exists($complaint, 'slaTargetHours') ? $complaint->slaTargetHours() : (\App\Models\Complaint::$slaHours[$complaint->type][$complaint->priority] ?? 24) }} jam
         dari waktu laporan diterima.
     </div>
 

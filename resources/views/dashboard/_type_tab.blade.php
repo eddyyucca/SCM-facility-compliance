@@ -130,13 +130,7 @@
                                 @php
                                     $firstPhoto = $c->photos[0] ?? null;
                                     $firstPhotoName = $firstPhoto ? basename($firstPhoto) : null;
-                                    $firstPhotoUrl = $firstPhotoName
-                                        ? (
-                                            \Illuminate\Support\Facades\Route::has('complaint.photos.show')
-                                                ? route('complaint.photos.show', ['filename' => $firstPhotoName])
-                                                : asset('storage/complaints/' . $firstPhotoName)
-                                        )
-                                        : null;
+                                    $firstPhotoUrl = $firstPhotoName ? asset('complaint-photo.php') . '?f=' . rawurlencode($firstPhotoName) . '&v=' . $c->updated_at->timestamp : null;
                                 @endphp
                                 <div class="d-flex align-items-center" style="gap:8px;">
                                     @if($firstPhoto)

@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Complaint;
+use App\Models\HrRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class TicketController extends Controller
 {
     /** Public ticket status check page */
     public function show(string $ticket)
     {
-        $complaint = Complaint::where('ticket_number', strtoupper(trim($ticket)))->firstOrFail();
+        $complaint = $this->findTicket(strtoupper(trim($ticket)));
+        abort_unless($complaint, 404);
+
         return view('ticket.status', compact('complaint'));
     }
 
@@ -23,7 +27,7 @@ class TicketController extends Controller
             return response()->json(['found' => false, 'message' => 'Nomor tiket tidak boleh kosong.'], 422);
         }
 
-        $complaint = Complaint::where('ticket_number', $ticket)->first();
+        $complaint = $this->findTicket($ticket);
 
         if (!$complaint) {
             return response()->json(['found' => false, 'message' => 'Tiket tidak ditemukan. Periksa kembali nomor tiket Anda.']);
@@ -36,10 +40,10 @@ class TicketController extends Controller
             'status'       => $complaint->status,
             'status_label' => $complaint->statusLabel(),
             'status_color' => $complaint->statusColor(),
-            'reporter'     => $complaint->reporter_name,
-            'building'     => $complaint->building,
-            'room'         => $complaint->room_number,
-            'description'  => \Str::limit($complaint->description, 100),
+            'reporter'     => $complaint instanceof HrRequest ? $complaint->employee_name : $complaint->reporter_name,
+            'building'     => $complaint instanceof HrRequest ? $complaint->department : $complaint->building,
+            'room'         => $complaint instanceof HrRequest ? null : $complaint->room_number,
+            'description'  => Str::limit($complaint->description, 100),
             'admin_notes'  => $complaint->admin_notes,
             'created_at'   => $complaint->created_at->format('d M Y H:i'),
             'sla_deadline' => $complaint->sla_deadline?->format('d M Y H:i'),
@@ -56,7 +60,15 @@ class TicketController extends Controller
         if (!$ticket) {
             return redirect()->route('home');
         }
-        $complaint = Complaint::where('ticket_number', $ticket)->firstOrFail();
+        $complaint = $this->findTicket($ticket);
+        abort_unless($complaint, 404);
+
         return view('ticket.success', compact('complaint'));
+    }
+
+    private function findTicket(string $ticket): Complaint|HrRequest|null
+    {
+        return Complaint::where('ticket_number', $ticket)->first()
+            ?? HrRequest::where('ticket_number', $ticket)->first();
     }
 }
