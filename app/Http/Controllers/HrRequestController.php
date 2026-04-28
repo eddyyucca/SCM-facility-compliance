@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\HrRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class HrRequestController extends Controller
@@ -29,11 +30,23 @@ class HrRequestController extends Controller
 
         $attachments = [];
         if ($request->hasFile('hr_attachments')) {
-            Storage::disk('public')->makeDirectory('hr-requests');
-            $attachments = collect($request->file('hr_attachments'))
-                ->map(fn ($file) => $file->store('hr-requests', 'public'))
-                ->values()
-                ->all();
+            try {
+                Storage::disk('public')->makeDirectory('hr-requests');
+                $attachments = collect($request->file('hr_attachments'))
+                    ->map(fn ($file) => $file->store('hr-requests', 'public'))
+                    ->values()
+                    ->all();
+            } catch (\Throwable $e) {
+                Log::error('HR attachment upload failed.', [
+                    'error' => $e->getMessage(),
+                    'disk' => 'public',
+                    'target' => 'hr-requests',
+                ]);
+
+                return back()
+                    ->withInput()
+                    ->with('error', 'Upload lampiran gagal. Pastikan folder storage hosting writable.');
+            }
         }
 
         $hrRequest = HrRequest::create([
@@ -60,35 +73,46 @@ class HrRequestController extends Controller
 
     public function dashboard(Request $request)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeHrAccess();
 
         [$dateFrom, $dateTo] = $this->dateRange($request);
-        $summary = $this->summary();
-        $serviceStats = $this->serviceStats();
-        $outstanding = HrRequest::whereIn('status', ['open', 'progress'])
+
+        $summary         = $this->buildSummary($dateFrom, $dateTo);
+        $serviceStats    = $this->buildServiceStats($dateFrom, $dateTo);
+        $chartData       = $this->chartData($dateFrom, $dateTo);
+        $resolutionChart = $this->buildResolutionChart($dateFrom, $dateTo);
+        $recent          = $this->buildRecent($dateFrom, $dateTo);
+        $outstanding     = HrRequest::whereIn('status', ['open', 'progress'])
             ->where('sla_deadline', '<', now())
             ->orderBy('sla_deadline')
             ->limit(10)
             ->get();
-        $recent = HrRequest::latest()->limit(8)->get();
-        $chartData = $this->chartData($dateFrom, $dateTo);
-        $resolutionChart = $this->resolutionChart();
 
         return view('hr.dashboard', compact(
-            'summary',
-            'serviceStats',
-            'outstanding',
-            'recent',
-            'chartData',
-            'resolutionChart',
-            'dateFrom',
-            'dateTo'
+            'summary', 'serviceStats', 'outstanding',
+            'recent', 'chartData', 'resolutionChart',
+            'dateFrom', 'dateTo'
         ));
+    }
+
+    public function dashboardStats(Request $request)
+    {
+        $this->authorizeHrAccess();
+
+        [$dateFrom, $dateTo] = $this->dateRange($request);
+
+        return response()->json([
+            'summary'         => $this->buildSummary($dateFrom, $dateTo),
+            'serviceStats'    => $this->buildServiceStats($dateFrom, $dateTo),
+            'chartData'       => $this->chartData($dateFrom, $dateTo),
+            'resolutionChart' => $this->buildResolutionChart($dateFrom, $dateTo),
+            'recent'          => $this->buildRecent($dateFrom, $dateTo),
+        ]);
     }
 
     public function index(Request $request)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeHrAccess();
 
         $query = HrRequest::query()->latest();
 
@@ -130,14 +154,14 @@ class HrRequestController extends Controller
 
     public function show(HrRequest $hrRequest)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeHrAccess();
 
         return view('hr.show', compact('hrRequest'));
     }
 
     public function updateStatus(Request $request, HrRequest $hrRequest)
     {
-        $this->authorizeSuperAdmin();
+        $this->authorizeHrAccess();
 
         $data = $request->validate([
             'status' => 'required|in:open,progress,closed,rejected',
@@ -157,9 +181,10 @@ class HrRequestController extends Controller
         return back()->with('success', 'Status laporan Human Resources berhasil diperbarui.');
     }
 
-    private function authorizeSuperAdmin(): void
+    private function authorizeHrAccess(): void
     {
-        abort_unless(auth()->user()?->isSuperAdmin(), 403);
+        $user = auth()->user();
+        abort_unless($user && ($user->isSuperAdmin() || $user->isHr()), 403);
     }
 
     private function dateRange(Request $request): array
@@ -175,38 +200,84 @@ class HrRequestController extends Controller
         return [$dateFrom, $dateTo];
     }
 
-    private function summary(): array
+    private function buildSummary(Carbon $from, Carbon $to): array
     {
-        $base = HrRequest::query();
-        $open = (clone $base)->where('status', 'open')->count();
+        $base     = HrRequest::whereBetween('created_at', [$from, $to]);
+        $open     = (clone $base)->where('status', 'open')->count();
         $progress = (clone $base)->where('status', 'progress')->count();
-        $closed = (clone $base)->where('status', 'closed')->count();
+        $closed   = (clone $base)->where('status', 'closed')->count();
         $rejected = (clone $base)->where('status', 'rejected')->count();
+        $total    = $open + $progress + $closed + $rejected;
+
+        $overdue = (clone $base)
+            ->whereIn('status', ['open', 'progress'])
+            ->where('sla_deadline', '<', now())
+            ->count();
+
+        $resolvedOnTime = (clone $base)
+            ->where('status', 'closed')
+            ->whereColumn('resolved_at', '<=', 'sla_deadline')
+            ->count();
+
+        $resolvedLate = (clone $base)
+            ->where('status', 'closed')
+            ->whereColumn('resolved_at', '>', 'sla_deadline')
+            ->count();
+
+        $slaRate = $closed > 0 ? round($resolvedOnTime / $closed * 100, 1) : null;
+
+        $avgHours = (clone $base)
+            ->where('status', 'closed')
+            ->whereNotNull('resolved_at')
+            ->selectRaw('AVG(TIMESTAMPDIFF(HOUR, created_at, resolved_at)) as avg_hours')
+            ->value('avg_hours');
 
         return [
-            'total' => $open + $progress + $closed + $rejected,
-            'open' => $open,
-            'progress' => $progress,
-            'closed' => $closed,
-            'rejected' => $rejected,
-            'overdue' => (clone $base)->whereIn('status', ['open', 'progress'])
-                ->where('sla_deadline', '<', now())
-                ->count(),
-            'resolved_on_time' => HrRequest::where('status', 'closed')
-                ->whereColumn('resolved_at', '<=', 'sla_deadline')
-                ->count(),
+            'total'             => $total,
+            'open'              => $open,
+            'progress'          => $progress,
+            'closed'            => $closed,
+            'rejected'          => $rejected,
+            'overdue'           => $overdue,
+            'resolved_on_time'  => $resolvedOnTime,
+            'resolved_late'     => $resolvedLate,
+            'sla_rate'          => $slaRate,
+            'avg_hours'         => $avgHours !== null ? round((float) $avgHours, 1) : null,
+            'priority_mendesak' => (clone $base)->where('priority', 'mendesak')->count(),
+            'priority_penting'  => (clone $base)->where('priority', 'penting')->count(),
+            'priority_normal'   => (clone $base)->where('priority', 'normal')->count(),
         ];
     }
 
-    private function serviceStats(): array
+    private function buildServiceStats(Carbon $from, Carbon $to): array
     {
-        return HrRequest::query()
+        return HrRequest::whereBetween('created_at', [$from, $to])
             ->selectRaw('service_type, COUNT(*) as total')
             ->groupBy('service_type')
             ->orderByDesc('total')
             ->limit(8)
             ->get()
             ->map(fn ($row) => ['label' => $row->service_type, 'total' => $row->total])
+            ->all();
+    }
+
+    private function buildRecent(Carbon $from, Carbon $to): array
+    {
+        return HrRequest::whereBetween('created_at', [$from, $to])
+            ->latest()
+            ->limit(8)
+            ->get()
+            ->map(fn ($r) => [
+                'id'             => $r->id,
+                'ticket_number'  => $r->ticket_number,
+                'employee_name'  => $r->employee_name,
+                'service_type'   => $r->service_type,
+                'priority_label' => $r->priorityLabel(),
+                'priority_class' => $r->priorityBadgeClass(),
+                'status_label'   => $r->statusLabel(),
+                'status_class'   => $r->statusBadgeClass(),
+                'url'            => route('hr.requests.show', $r),
+            ])
             ->all();
     }
 
@@ -247,20 +318,22 @@ class HrRequestController extends Controller
         ];
     }
 
-    private function resolutionChart(): array
+    private function buildResolutionChart(Carbon $from, Carbon $to): array
     {
+        $base = HrRequest::whereBetween('created_at', [$from, $to]);
+
         return [
-            'labels' => ['Tepat SLA', 'Overdue', 'Belum Selesai', 'Ditolak'],
+            'labels'   => ['Tepat SLA', 'Terlambat', 'Belum Selesai', 'Ditolak'],
             'datasets' => [[
                 'data' => [
-                    HrRequest::where('status', 'closed')->whereColumn('resolved_at', '<=', 'sla_deadline')->count(),
-                    HrRequest::where('status', 'closed')->whereColumn('resolved_at', '>', 'sla_deadline')->count(),
-                    HrRequest::whereIn('status', ['open', 'progress'])->count(),
-                    HrRequest::where('status', 'rejected')->count(),
+                    (clone $base)->where('status', 'closed')->whereColumn('resolved_at', '<=', 'sla_deadline')->count(),
+                    (clone $base)->where('status', 'closed')->whereColumn('resolved_at', '>', 'sla_deadline')->count(),
+                    (clone $base)->whereIn('status', ['open', 'progress'])->count(),
+                    (clone $base)->where('status', 'rejected')->count(),
                 ],
                 'backgroundColor' => ['#198754', '#dc3545', '#ffc107', '#adb5bd'],
-                'borderWidth' => 2,
-                'borderColor' => '#fff',
+                'borderWidth'     => 2,
+                'borderColor'     => '#fff',
             ]],
         ];
     }

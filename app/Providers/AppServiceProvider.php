@@ -45,6 +45,7 @@ class AppServiceProvider extends ServiceProvider
             storage_path('app/private'),
             storage_path('app/public'),
             storage_path('app/public/complaints'),
+            storage_path('app/public/hr-requests'),
             storage_path('framework'),
             storage_path('framework/cache'),
             storage_path('framework/cache/data'),

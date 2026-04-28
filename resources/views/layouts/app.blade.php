@@ -500,13 +500,27 @@
             <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu">
 
                 @php
+                    $u          = Auth::user();
                     $gaMenuOpen = request()->routeIs('dashboard')
                         || request()->routeIs('complaints.*')
                         || request()->routeIs('analytics.*')
                         || request()->routeIs('reporters.*');
                     $hrMenuOpen = request()->routeIs('hr.*');
+
+                    $showGaSection = $u->canAccessMenu('dashboard_ga')
+                        || $u->canAccessMenu('complaints_all')
+                        || $u->canAccessMenu('analytics_ga')
+                        || $u->canAccessMenu('reporters_ga');
+
+                    $showHrSection = $u->canAccessMenu('hr_dashboard')
+                        || $u->canAccessMenu('hr_all');
+
+                    $showAdminSection = $u->canAccessMenu('users_manage')
+                        || $u->canAccessMenu('menu_permissions')
+                        || $u->canAccessMenu('sla_settings');
                 @endphp
 
+                @if($showGaSection)
                 <li class="nav-item has-treeview {{ $gaMenuOpen ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ $gaMenuOpen ? 'active' : '' }}">
                         <i class="nav-icon fas fa-building"></i>
@@ -516,6 +530,7 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
+                        @if($u->canAccessMenu('dashboard_ga'))
                         <li class="nav-item">
                             <a href="{{ route('dashboard') }}"
                                class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
@@ -523,6 +538,9 @@
                                 <p>Dashboard GA</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('complaints_all'))
                         <li class="nav-item">
                             <a href="{{ route('complaints.index') }}"
                                class="nav-link {{ request()->routeIs('complaints.*') && !request()->filled('status') && !request()->boolean('overdue') && !request()->filled('type') ? 'active' : '' }}">
@@ -530,6 +548,9 @@
                                 <p>Semua Laporan GA</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('complaints_open'))
                         <li class="nav-item">
                             <a href="{{ route('complaints.index', ['status' => 'open']) }}"
                                class="nav-link {{ request()->routeIs('complaints.*') && request('status') === 'open' ? 'active' : '' }}">
@@ -537,6 +558,9 @@
                                 <p>GA Open</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('complaints_progress'))
                         <li class="nav-item">
                             <a href="{{ route('complaints.index', ['status' => 'progress']) }}"
                                class="nav-link {{ request()->routeIs('complaints.*') && request('status') === 'progress' ? 'active' : '' }}">
@@ -544,6 +568,9 @@
                                 <p>GA Progress</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('complaints_overdue'))
                         <li class="nav-item">
                             <a href="{{ route('complaints.index', ['overdue' => '1']) }}"
                                class="nav-link {{ request()->routeIs('complaints.*') && request()->boolean('overdue') ? 'active' : '' }}">
@@ -551,40 +578,57 @@
                                 <p>GA Overdue SLA</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('complaints_receptionist'))
                         <li class="nav-item">
                             <a href="{{ route('complaints.index', ['type' => 'receptionist']) }}"
                                class="nav-link {{ request()->routeIs('complaints.*') && request('type') === 'receptionist' ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-concierge-bell"></i><p>GA Receptionist</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('complaints_hk'))
                         <li class="nav-item">
                             <a href="{{ route('complaints.index', ['type' => 'hk']) }}"
                                class="nav-link {{ request()->routeIs('complaints.*') && request('type') === 'hk' ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-broom"></i><p>GA Housekeeping</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('complaints_laundry'))
                         <li class="nav-item">
                             <a href="{{ route('complaints.index', ['type' => 'laundry']) }}"
                                class="nav-link {{ request()->routeIs('complaints.*') && request('type') === 'laundry' ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-tshirt"></i><p>GA Laundry</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('analytics_ga'))
                         <li class="nav-item">
                             <a href="{{ route('analytics.index') }}"
                                class="nav-link {{ request()->routeIs('analytics.*') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-chart-bar"></i><p>Analitik GA</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('reporters_ga'))
                         <li class="nav-item">
                             <a href="{{ route('reporters.index') }}"
                                class="nav-link {{ request()->routeIs('reporters.*') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-users"></i><p>Pelapor GA</p>
                             </a>
                         </li>
+                        @endif
                     </ul>
                 </li>
+                @endif
 
-        @if(Auth::user()->isSuperAdmin())
+                @if($showHrSection)
                 <li class="nav-item has-treeview {{ $hrMenuOpen ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ $hrMenuOpen ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user-tie"></i>
@@ -594,18 +638,25 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
+                        @if($u->canAccessMenu('hr_dashboard'))
                         <li class="nav-item">
                             <a href="{{ route('hr.dashboard') }}"
                                class="nav-link {{ request()->routeIs('hr.dashboard') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-chart-line"></i><p>Dashboard HR</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('hr_all'))
                         <li class="nav-item">
                             <a href="{{ route('hr.requests.index') }}"
                                class="nav-link {{ request()->routeIs('hr.requests.*') && !request()->filled('status') && !request()->boolean('overdue') ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-clipboard-check"></i><p>Semua Laporan HR</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('hr_open'))
                         <li class="nav-item">
                             <a href="{{ route('hr.requests.index', ['status' => 'open']) }}"
                                class="nav-link {{ request()->routeIs('hr.requests.*') && request('status') === 'open' ? 'active' : '' }}">
@@ -613,6 +664,9 @@
                                 <p>HR Open</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('hr_progress'))
                         <li class="nav-item">
                             <a href="{{ route('hr.requests.index', ['status' => 'progress']) }}"
                                class="nav-link {{ request()->routeIs('hr.requests.*') && request('status') === 'progress' ? 'active' : '' }}">
@@ -620,6 +674,9 @@
                                 <p>HR Progress</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('hr_closed'))
                         <li class="nav-item">
                             <a href="{{ route('hr.requests.index', ['status' => 'closed']) }}"
                                class="nav-link {{ request()->routeIs('hr.requests.*') && request('status') === 'closed' ? 'active' : '' }}">
@@ -627,6 +684,9 @@
                                 <p>HR Penyelesaian</p>
                             </a>
                         </li>
+                        @endif
+
+                        @if($u->canAccessMenu('hr_overdue'))
                         <li class="nav-item">
                             <a href="{{ route('hr.requests.index', ['overdue' => '1']) }}"
                                class="nav-link {{ request()->routeIs('hr.requests.*') && request()->boolean('overdue') ? 'active' : '' }}">
@@ -634,16 +694,40 @@
                                 <p>HR Overdue SLA</p>
                             </a>
                         </li>
+                        @endif
                     </ul>
                 </li>
+                @endif
 
+                @if($showAdminSection)
                 <li class="nav-header sidebar-section sidebar-section-admin">ADMINISTRASI</li>
+
+                @if($u->canAccessMenu('users_manage'))
                 <li class="nav-item">
                     <a href="{{ route('users.index') }}"
                        class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-user-cog"></i><p>Kelola Akun</p>
                     </a>
                 </li>
+                @endif
+
+                @if($u->canAccessMenu('menu_permissions'))
+                <li class="nav-item">
+                    <a href="{{ route('menu-permissions.index') }}"
+                       class="nav-link {{ request()->routeIs('menu-permissions.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-shield-alt"></i><p>Izin Akses Menu</p>
+                    </a>
+                </li>
+                @endif
+
+                @if($u->canAccessMenu('sla_settings'))
+                <li class="nav-item">
+                    <a href="{{ route('sla.index') }}"
+                       class="nav-link {{ request()->routeIs('sla.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-clock"></i><p>Pengaturan SLA</p>
+                    </a>
+                </li>
+                @endif
                 @endif
 
                 <li class="nav-header sidebar-section sidebar-section-admin">LAINNYA</li>

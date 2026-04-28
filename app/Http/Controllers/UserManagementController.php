@@ -86,10 +86,12 @@ class UserManagementController extends Controller
     private function roles(): array
     {
         return [
-            'superadmin' => 'Super Admin',
-            'receptionist' => 'Receptionist',
-            'hk' => 'Housekeeping',
-            'laundry' => 'Laundry',
+            'superadmin'   => 'Super Admin',
+            'ga'           => 'General Affairs (GA)',
+            'receptionist' => 'Receptionist (GA)',
+            'hk'           => 'Housekeeping (GA)',
+            'laundry'      => 'Laundry (GA)',
+            'hr'           => 'Human Resources (HR)',
         ];
     }
 }

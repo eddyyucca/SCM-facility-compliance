@@ -106,7 +106,7 @@ class ComplaintController extends Controller
     public function index(Request $request)
     {
         $user  = Auth::user();
-        $types = $user->isSuperAdmin() ? ['receptionist', 'hk', 'laundry'] : [$user->role];
+        $types = $user->gaTypes();
         $query = Complaint::whereIn('type', $types)->orderByDesc('created_at');
 
         if ($request->filled('type') && in_array($request->type, $types)) {

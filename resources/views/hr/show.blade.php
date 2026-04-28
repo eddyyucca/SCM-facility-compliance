@@ -78,9 +78,9 @@
                     <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#6c757d;font-weight:700;margin-bottom:10px;">
                         <i class="fas fa-paperclip mr-1"></i> Lampiran
                     </div>
-                    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                        <div style="display:flex;flex-wrap:wrap;gap:8px;">
                         @foreach($hrRequest->attachments as $attachment)
-                        <a href="{{ Storage::disk('public')->url($attachment) }}" target="_blank" class="btn btn-sm btn-outline-success">
+                        <a href="{{ route('hr.attachments.show', ['filename' => basename($attachment)]) }}" target="_blank" class="btn btn-sm btn-outline-success">
                             <i class="fas fa-file mr-1"></i> {{ basename($attachment) }}
                         </a>
                         @endforeach

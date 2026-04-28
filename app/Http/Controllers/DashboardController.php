@@ -12,9 +12,15 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $user      = Auth::user();
+        $user = Auth::user();
+
+        // HR tidak punya akses ke GA dashboard, arahkan ke HR dashboard
+        if ($user->isHr()) {
+            return redirect()->route('hr.dashboard');
+        }
+
         $allTypes  = ['receptionist', 'hk', 'laundry'];
-        $userTypes = $user->isSuperAdmin() ? $allTypes : [$user->role];
+        $userTypes = $user->gaTypes();
 
         // ── Date range (default: current month) ──
         $tz = config('app.timezone');
@@ -86,7 +92,7 @@ class DashboardController extends Controller
     {
         $user      = Auth::user();
         $allTypes  = ['receptionist', 'hk', 'laundry'];
-        $userTypes = $user->isSuperAdmin() ? $allTypes : [$user->role];
+        $userTypes = $user->gaTypes();
 
         $tz = config('app.timezone');
         $dateFrom = $request->filled('date_from')

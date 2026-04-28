@@ -2,22 +2,23 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\Complaint;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Carbon\Carbon;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // ── 4 Accounts ──
+        // ── Accounts ──
         $users = [
             ['name' => 'Super Admin GA',    'email' => 'superadmin@ga.com',   'role' => 'superadmin'],
             ['name' => 'Staff Receptionist', 'email' => 'receptionist@ga.com', 'role' => 'receptionist'],
-            ['name' => 'Staff Housekeeping','email' => 'hk@ga.com',           'role' => 'hk'],
-            ['name' => 'Staff Laundry',     'email' => 'laundry@ga.com',      'role' => 'laundry'],
+            ['name' => 'Staff Housekeeping', 'email' => 'hk@ga.com',           'role' => 'hk'],
+            ['name' => 'Staff Laundry',      'email' => 'laundry@ga.com',      'role' => 'laundry'],
+            ['name' => 'Staff HR',           'email' => 'hr@ga.com',           'role' => 'hr'],
         ];
 
         foreach ($users as $u) {
@@ -25,6 +26,12 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password123'),
             ]));
         }
+
+        // ── Menu Permissions ──
+        $this->call(MenuPermissionSeeder::class);
+
+        // ── SLA Settings ──
+        $this->call(SlaSettingSeeder::class);
 
         // ── Dummy Complaints ──
         $this->seedComplaints();

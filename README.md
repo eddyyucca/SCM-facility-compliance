@@ -1,102 +1,168 @@
-# SCM Complaint Management
+# SEDIA - GA Facility & HR Service Management
 
-Aplikasi pelaporan keluhan fasilitas internal untuk PT Sulawesi Cahaya Mineral. Sistem ini dipakai untuk menerima laporan dari pengguna tanpa login, membuat nomor tiket otomatis, mendistribusikan pekerjaan ke tim Receptionist, Housekeeping, atau Laundry, lalu memantau progres penanganan sampai tiket selesai atau ditolak.
+<p align="center">
+  <img src="public/img/sedia-transparent.png" alt="SEDIA Logo" width="320">
+</p>
 
-## Tujuan Sistem
+<p align="center">
+  Aplikasi layanan internal berbasis Laravel untuk pengelolaan pengaduan fasilitas GA, permintaan HR, pelacakan tiket, dashboard operasional, analitik, dan notifikasi.
+</p>
 
-- Menyediakan kanal pelaporan fasilitas yang cepat dan mudah dipakai.
-- Memisahkan penanganan laporan berdasarkan tipe layanan.
-- Menyimpan histori tiket, status, dan lampiran foto secara terstruktur.
-- Menyediakan dashboard operasional dan analitik pelapor untuk admin.
-- Mengirim notifikasi ke kanal operasional agar tindak lanjut lebih cepat.
-- Mendukung penggunaan seperti aplikasi melalui PWA.
+## Gambaran Umum
 
-## Fitur Utama
+SEDIA adalah aplikasi layanan internal yang menyatukan dua proses utama dalam satu halaman publik:
 
-### 1. Form laporan publik
-- Halaman publik ada di `GET /` dan menggunakan view `resources/views/form.blade.php`.
-- Pelapor dapat membuat laporan tanpa login.
-- Tipe laporan yang tersedia: `receptionist`, `hk`, dan `laundry`.
-- Field bangunan dan perusahaan mendukung pencarian.
-- Tersedia opsi input manual jika pilihan default tidak sesuai.
-- Pelapor dapat mengunggah hingga 6 foto dengan format `jpg`, `jpeg`, `png`, atau `webp`.
-- Setelah submit, sistem membuat nomor tiket otomatis dan mengarahkan pelapor ke halaman sukses.
+- `GA Facility Complaint` untuk pengaduan fasilitas, kebersihan, dan laundry.
+- `HR Request` untuk kebutuhan administrasi dan layanan Human Resources.
 
-### 2. Tracking tiket publik
-- Pelapor dapat melihat status tiket melalui halaman detail tiket.
-- Endpoint AJAX untuk cek tiket tersedia di `GET /api/cek-tiket`.
-- Detail tiket menampilkan nomor tiket, status, informasi pelapor, lokasi, dan foto lampiran.
+Setelah pengguna mengirim laporan, sistem membuat nomor tiket otomatis, menghitung target SLA, menyimpan lampiran, dan menyediakan pelacakan status tiket. Di sisi internal, operator dan superadmin dapat memonitor dashboard, memperbarui status, melihat analitik, serta menerima notifikasi operasional.
 
-### 3. Dashboard admin
-- Login tersedia untuk role `superadmin`, `receptionist`, `hk`, dan `laundry`.
-- Setiap role hanya melihat data yang sesuai otoritasnya, kecuali `superadmin` yang melihat semua.
-- Dashboard menampilkan ringkasan total, open, progress, closed, rejected, overdue, dan SLA.
-- Tab Receptionist, Housekeeping, dan Laundry menampilkan jumlah total non-rejected per tipe pada badge ringkasan.
-- Data dashboard diperbarui melalui endpoint statistik internal.
+## Tujuan Aplikasi
 
-### 4. Manajemen complaint
-- Admin dapat melihat daftar laporan, membuka detail, dan memperbarui status.
-- Status yang digunakan saat ini: `open`, `progress`, `closed`, dan `rejected`.
-- Setiap tiket memiliki `admin_notes`, `sla_deadline`, dan `resolved_at`.
-- Foto disimpan pada disk `public` dan diakses melalui `public/storage`.
+- Menyediakan kanal layanan internal yang cepat, sederhana, dan terdokumentasi.
+- Memisahkan penanganan berdasarkan jenis layanan dan role petugas.
+- Menjaga transparansi progres melalui nomor tiket dan halaman cek status.
+- Membantu pengambilan keputusan lewat dashboard operasional dan analitik.
+- Mendorong perbaikan berkelanjutan melalui monitoring SLA dan evaluasi data.
 
-### 5. Analitik
-- Halaman analitik laporan menampilkan distribusi status, prioritas, tipe, dan tren waktu.
-- Halaman analitik pelapor mengurutkan pelapor berdasarkan jumlah laporan non-rejected.
-- Pelapor tertinggi dapat dibuka untuk melihat log tiket yang pernah dibuat.
-- Perhitungan pelapor tertinggi secara eksplisit tidak memasukkan tiket `rejected`.
+## Cakupan Modul
+
+### 1. Portal layanan publik
+
+Halaman `GET /` berisi tiga mode layanan dalam satu UI:
+
+- `Human Resources`
+- `GA`
+- `Cek Tiket`
+
+Fungsi utama:
+
+- Submit permintaan HR tanpa login.
+- Submit pengaduan GA tanpa login.
+- Cek tiket HR dan GA dari satu halaman.
+- Upload lampiran/foto.
+- Dukungan multi-language di antarmuka publik.
+
+### 2. Complaint Management GA
+
+Modul ini menangani pengaduan fasilitas dengan tipe:
+
+- `receptionist`
+- `hk`
+- `laundry`
+
+Fitur inti:
+
+- Generate ticket otomatis: `RCP`, `HKP`, `LDY`
+- SLA otomatis berdasarkan tipe dan prioritas
+- Upload hingga 6 foto
+- Status tiket: `open`, `progress`, `closed`, `rejected`
+- Catatan admin dan histori penyelesaian
+
+### 3. HR Request Management
+
+Modul ini menangani kebutuhan layanan HR seperti:
+
+- surat keterangan kerja
+- payroll atau slip gaji
+- absensi, cuti, izin
+- benefit, BPJS, asuransi
+- rekrutmen atau onboarding
+- konsultasi hubungan kerja
+
+Fitur inti:
+
+- Generate ticket otomatis: `HR-0001`
+- Prioritas: `normal`, `penting`, `mendesak`
+- Upload lampiran dokumen
+- Dashboard khusus HR untuk `superadmin`
+- Monitoring overdue dan performa penyelesaian
+
+### 4. Dashboard operasional
+
+Dashboard internal menampilkan:
+
+- total tiket
+- tiket open
+- tiket progress
+- tiket closed
+- tiket rejected
+- overdue SLA
+- trend laporan
+- outstanding workload
+
+Hak akses:
+
+- `superadmin` melihat seluruh complaint GA, dashboard HR, analytics, dan user management
+- `receptionist` melihat complaint tipe receptionist
+- `hk` melihat complaint tipe housekeeping
+- `laundry` melihat complaint tipe laundry
+
+### 5. Analitik dan monitoring
+
+Analitik aplikasi mencakup:
+
+- distribusi complaint per tipe
+- distribusi status
+- top building atau area
+- SLA compliance
+- tren harian atau bulanan
+- distribusi hari dan jam laporan
+- analitik pelapor teraktif
 
 ### 6. Notifikasi
-- Laporan baru dapat dikirim ke grup WhatsApp melalui service `app/Services/WhatsappService.php`.
-- Aplikasi juga sudah menyiapkan push notification PWA melalui subscription per user.
-- Untuk produksi, semua secret notifikasi harus dipindah ke `.env`.
 
-### 7. PWA
-- Aplikasi memiliki manifest, service worker, ikon aplikasi, dan fallback offline.
-- Ikon PWA menggunakan aset `public/icons/GA-SCM.png` yang diturunkan ke ikon 192px dan 512px.
+Sistem sudah mengintegrasikan:
 
-## Role dan Hak Akses
+- notifikasi WhatsApp grup untuk complaint baru
+- web push notification untuk user yang subscribe
+- PWA manifest, service worker, dan offline page
 
-| Role | Akses |
-| --- | --- |
-| `superadmin` | Melihat semua complaint, semua analitik, dan CRUD user |
-| `receptionist` | Melihat complaint tipe Receptionist dan analitik terkait |
-| `hk` | Melihat complaint tipe Housekeeping dan analitik terkait |
-| `laundry` | Melihat complaint tipe Laundry dan analitik terkait |
+## Flow Proses Aplikasi
 
-## Alur Proses Bisnis
+### Flow proses utama
 
-### Ringkasan alur
-1. Pelapor membuka form publik.
-2. Pelapor memilih tipe layanan, mengisi lokasi, deskripsi, dan foto.
-3. Sistem memvalidasi input lalu membuat ticket number sesuai tipe.
-4. Complaint disimpan dengan status awal `open`.
-5. Sistem menghitung SLA deadline berdasarkan tipe dan prioritas.
-6. Sistem mengirim notifikasi operasional.
-7. Admin membuka dashboard dan memproses tiket.
-8. Status bergerak dari `open` ke `progress`, lalu `closed`, atau dapat menjadi `rejected`.
-9. Data complaint masuk ke dashboard dan analitik sesuai filter tanggal dan role.
-
-### Flowchart proses
 ```mermaid
 flowchart TD
-    A[Pelapor buka form publik] --> B[Isi tipe, identitas, lokasi, deskripsi, foto]
-    B --> C[Submit laporan]
-    C --> D[Validasi request]
-    D -->|Valid| E[Generate nomor tiket]
-    E --> F[Simpan complaint status open]
-    F --> G[Hitung SLA deadline]
-    G --> H[Kirim notifikasi WA / Push]
-    H --> I[Dashboard admin menampilkan tiket]
-    I --> J[Admin review dan update status]
-    J --> K[Progress]
-    J --> L[Rejected]
-    K --> M[Closed]
-    M --> N[Masuk histori dan analitik]
-    L --> N
+    A[Pengguna membuka portal SEDIA] --> B{Pilih layanan}
+    B -->|GA| C[Isi form pengaduan fasilitas]
+    B -->|HR| D[Isi form layanan HR]
+    B -->|Cek Tiket| E[Masukkan nomor tiket]
+
+    C --> F[Validasi data complaint]
+    D --> G[Validasi data HR request]
+
+    F --> H[Generate ticket GA]
+    G --> I[Generate ticket HR]
+
+    H --> J[Simpan complaint dan hitung SLA]
+    I --> K[Simpan HR request dan hitung SLA]
+
+    J --> L[Kirim notifikasi operasional]
+    K --> M[Tampilkan ticket success]
+    L --> M
+
+    M --> N[Pengguna cek status tiket]
+    E --> N
+
+    N --> O[TicketController mencari tiket GA atau HR]
+    O --> P[Tampilkan status, detail, dan progres]
+
+    J --> Q[Dashboard GA]
+    K --> R[Dashboard HR]
+
+    Q --> S[Petugas update status]
+    R --> T[Superadmin update status]
+
+    S --> U[Open to Progress to Closed atau Rejected]
+    T --> V[Open to Progress to Closed atau Rejected]
+
+    U --> W[Masuk ke analytics dan evaluasi SLA]
+    V --> W
 ```
 
-### Status flow
+### Flow status tiket
+
 ```mermaid
 stateDiagram-v2
     [*] --> Open
@@ -108,157 +174,229 @@ stateDiagram-v2
     Rejected --> [*]
 ```
 
-## Perhitungan Dashboard dan Analitik
+### Flow proses GA
 
-### Ringkasan dashboard
-- `total`: seluruh complaint pada scope role dan filter tanggal.
-- `open`: jumlah complaint dengan status `open`.
-- `progress`: jumlah complaint dengan status `progress`.
-- `closed`: jumlah complaint dengan status `closed`.
-- `rejected`: jumlah complaint dengan status `rejected`.
-- `tab_total`: jumlah badge per tipe di samping ringkasan tab, dihitung dari `open + progress + closed`, sehingga tiket `rejected` tidak ikut masuk.
-
-### Analitik pelapor
-- Data pelapor dikelompokkan berdasarkan `reporter_wa`.
-- Jika nomor telepon kosong, sistem fallback ke gabungan nama pelapor.
-- Peringkat pelapor tertinggi hanya memakai complaint dengan status selain `rejected`.
-- Log detail pelapor menampilkan daftar tiket non-rejected milik pelapor yang dipilih.
-
-## Arsitektur Data
-
-### Entitas utama
-- `users`: akun admin dan operator.
-- `complaints`: inti data tiket dan operasional complaint.
-- `push_subscriptions`: daftar perangkat browser yang menerima push notification.
-- `cache`, `jobs`, dan tabel Laravel lain: pendukung framework.
-
-### ERD
 ```mermaid
-erDiagram
-    USERS ||--o{ PUSH_SUBSCRIPTIONS : owns
-    USERS {
-        bigint id PK
-        string name
-        string email
-        string password
-        string role
-        timestamp created_at
-        timestamp updated_at
-    }
-    COMPLAINTS {
-        bigint id PK
-        string ticket_number UK
-        enum type
-        string reporter_name
-        string reporter_wa
-        string company_name
-        string job_title
-        string department
-        string building
-        string room_number
-        string location
-        string category
-        enum priority
-        enum status
-        text description
-        json photos
-        text admin_notes
-        timestamp sla_deadline
-        timestamp resolved_at
-        timestamp created_at
-        timestamp updated_at
-    }
-    PUSH_SUBSCRIPTIONS {
-        bigint id PK
-        bigint user_id FK
-        text endpoint
-        string endpoint_hash UK
-        string public_key
-        string auth_token
-        string content_encoding
-        text user_agent
-        timestamp last_used_at
-        timestamp created_at
-        timestamp updated_at
-    }
+flowchart LR
+    A[Form GA] --> B[Validasi input]
+    B --> C[Generate ticket RCP HKP LDY]
+    C --> D[Set priority sedang]
+    D --> E[Hitung SLA deadline]
+    E --> F[Simpan complaint]
+    F --> G[Upload foto ke storage public]
+    G --> H[Notifikasi WhatsApp dan Web Push]
+    H --> I[Dashboard operator]
+    I --> J[Update status dan admin notes]
 ```
+
+### Flow proses HR
+
+```mermaid
+flowchart LR
+    A[Form HR] --> B[Validasi input]
+    B --> C[Generate ticket HR]
+    C --> D[Hitung SLA sesuai prioritas]
+    D --> E[Simpan request dan attachment]
+    E --> F[Halaman sukses dan pelacakan tiket]
+    F --> G[Dashboard HR superadmin]
+    G --> H[Review dan update status]
+```
+
+## Penjelasan Sistem Berdasarkan PDCA
+
+Pendekatan PDCA membantu menjelaskan bagaimana aplikasi ini mendukung perbaikan layanan secara berulang, bukan sekadar pencatatan tiket.
+
+### Plan
+
+Tahap `Plan` diwujudkan saat organisasi mendefinisikan struktur layanan dan target respons:
+
+- jenis layanan dipisahkan menjadi `receptionist`, `hk`, `laundry`, dan `HR`
+- prioritas dan SLA ditentukan di model
+- master data bangunan dan perusahaan disiapkan di konfigurasi
+- role petugas dipisahkan agar setiap tim fokus pada domain kerjanya
+
+Maknanya, aplikasi sudah menanamkan standar layanan sebelum tiket masuk.
+
+### Do
+
+Tahap `Do` terjadi saat operasional berjalan:
+
+- pengguna mengirim laporan atau request lewat form publik
+- sistem memvalidasi data lalu menyimpan tiket
+- nomor tiket dibuat otomatis
+- lampiran disimpan ke storage
+- notifikasi dikirim ke kanal operasional
+- petugas memproses tiket melalui dashboard
+
+Maknanya, proses eksekusi layanan terdigitalisasi dan terdokumentasi.
+
+### Check
+
+Tahap `Check` dilakukan melalui monitoring dan evaluasi:
+
+- dashboard menampilkan open, progress, closed, rejected, dan overdue
+- analitik menunjukkan tren volume laporan
+- SLA compliance membantu melihat ketepatan penyelesaian
+- top reporter dan top building membantu membaca pola masalah
+- outstanding ticket memperlihatkan backlog yang perlu diprioritaskan
+
+Maknanya, manajemen bisa mengukur kualitas layanan secara objektif.
+
+### Act
+
+Tahap `Act` adalah tindak lanjut atas temuan monitoring:
+
+- menyesuaikan SOP berdasarkan kategori yang paling sering muncul
+- memperbaiki beban kerja tim berdasarkan data overdue
+- mengubah prioritas atau SLA bila target tidak realistis
+- menambah fitur audit trail, queue, dan escalation rule untuk iterasi berikutnya
+- memakai data analitik untuk preventive action pada area atau gedung tertentu
+
+Maknanya, aplikasi menjadi alat continuous improvement, bukan hanya sistem input laporan.
+
+## Matriks Improvement PDCA
+
+| Tahap PDCA | Implementasi di aplikasi | Nilai bisnis |
+| --- | --- | --- |
+| `Plan` | Master layanan, role, SLA, konfigurasi gedung/perusahaan | Standar layanan lebih jelas |
+| `Do` | Form publik, ticketing, upload lampiran, notifikasi, dashboard operasional | Proses layanan lebih cepat dan terdokumentasi |
+| `Check` | Dashboard summary, analytics, reporter insight, SLA monitoring | Kinerja layanan bisa diukur |
+| `Act` | Evaluasi backlog, revisi SOP, penguatan fitur lanjutan | Perbaikan layanan berkelanjutan |
+
+## Arsitektur Singkat
+
+### Backend
+
+- Laravel 12
+- PHP 8.2
+- Eloquent ORM
+- Blade template
+
+### Frontend
+
+- Blade
+- Chart.js
+- Flatpickr
+- Choices.js
+- Font Awesome
+
+### Integrasi
+
+- Fonnte untuk WhatsApp notification
+- `minishlink/web-push` untuk push notification browser
+- PWA manifest dan service worker
+
+## Entitas Data Utama
+
+| Entitas | Fungsi |
+| --- | --- |
+| `users` | Akun operator dan superadmin |
+| `complaints` | Tiket pengaduan fasilitas GA |
+| `hr_requests` | Tiket layanan Human Resources |
+| `push_subscriptions` | Subscription browser untuk push notification |
 
 ## Struktur Folder Penting
 
-- `app/Http/Controllers`
-  File controller utama untuk auth, complaint, dashboard, tiket, analytics, reporter, push subscription, dan user management.
-- `app/Models/Complaint.php`
-  Model utama complaint, generator tiket, label status, dan perhitungan SLA.
-- `app/Services/WhatsappService.php`
-  Pengiriman notifikasi grup WhatsApp.
-- `app/Services/WebPushService.php`
-  Pengiriman notifikasi push ke browser yang sudah subscribe.
-- `resources/views/form.blade.php`
-  Form pelaporan publik.
-- `resources/views/dashboard/index.blade.php`
-  Dashboard utama dan ringkasan per tipe.
-- `resources/views/reporters/index.blade.php`
-  Analitik pelapor dan log pelapor tertinggi.
-- `public/sw.js`
-  Service worker untuk PWA dan push notification.
-- `config/buildings.php`
-  Master data bangunan.
-- `config/companies.php`
-  Master data perusahaan.
+- `app/Http/Controllers` untuk controller auth, complaint, HR, dashboard, analytics, ticket, dan user management
+- `app/Models/Complaint.php` untuk ticket generation, SLA complaint, dan helper status
+- `app/Models/HrRequest.php` untuk ticket generation dan SLA HR request
+- `app/Services/WhatsappService.php` untuk notifikasi WhatsApp
+- `app/Services/WebPushService.php` untuk push notification
+- `resources/views/form.blade.php` untuk portal layanan publik
+- `resources/views/dashboard` untuk dashboard complaint GA
+- `resources/views/hr` untuk dashboard dan detail HR
+- `resources/views/analytics` untuk analitik complaint
+- `resources/views/reporters` untuk insight pelapor
+- `public/img` dan `public/icons` untuk branding dan aset PWA
 
 ## Routing Penting
 
-### Public route
-- `GET /` : form laporan publik
-- `POST /complaint/submit` : simpan complaint baru
-- `GET /complaint/success` : halaman sukses submit
-- `GET /tiket/{ticket}` : detail tiket publik
-- `GET /api/cek-tiket` : pencarian tiket via AJAX
-- `GET /api/push/public-key` : public key push notification
+### Public routes
 
-### Authenticated route
-- `GET /dashboard` : dashboard utama
-- `GET /complaints` : daftar complaint
-- `GET /complaints/{complaint}` : detail complaint admin
-- `PATCH /complaints/{complaint}/status` : update status complaint
-- `GET /api/new-complaints` : polling complaint/notifikasi
-- `GET /api/dashboard-stats` : statistik dashboard
-- `POST /api/push/subscribe` : simpan subscription push
-- `DELETE /api/push/unsubscribe` : hapus subscription push
-- `GET /analytics` : analitik laporan
-- `GET /reporters` : analitik pelapor
+- `GET /` portal layanan publik
+- `POST /complaint/submit` submit complaint GA
+- `POST /hr-requests/submit` submit request HR
+- `GET /tiket/{ticket}` detail status tiket
+- `GET /api/cek-tiket` cek tiket via AJAX
+- `GET /complaint/success` halaman sukses submit
+- `GET /api/push/public-key` public key web push
 
-### Superadmin route
-- `GET /users`
-- `GET /users/create`
-- `POST /users`
-- `GET /users/{user}/edit`
-- `PUT /users/{user}`
-- `DELETE /users/{user}`
+### Authenticated routes
+
+- `GET /dashboard` dashboard operasional GA
+- `GET /complaints` daftar complaint
+- `GET /complaints/{complaint}` detail complaint
+- `PATCH /complaints/{complaint}/status` update status complaint
+- `GET /analytics` analitik complaint
+- `GET /reporters` analitik pelapor
+- `POST /api/push/subscribe` subscribe push
+- `DELETE /api/push/unsubscribe` unsubscribe push
+
+### Superadmin routes
+
+- `GET /hr-dashboard` dashboard HR
+- `GET /hr-requests` daftar HR request
+- `GET /hr-requests/{hrRequest}` detail HR request
+- `PATCH /hr-requests/{hrRequest}/status` update status HR request
+- `GET /users` manajemen user
+- `POST /users` tambah user
+- `PUT /users/{user}` update user
+- `DELETE /users/{user}` hapus user
+
+## Format Ticket
+
+| Jenis layanan | Prefix | Contoh |
+| --- | --- | --- |
+| Receptionist | `RCP` | `RCP-0001` |
+| Housekeeping | `HKP` | `HKP-0001` |
+| Laundry | `LDY` | `LDY-0001` |
+| Human Resources | `HR` | `HR-0001` |
+
+## SLA Saat Ini
+
+### Complaint GA
+
+| Tipe | Rendah | Sedang | Tinggi | Urgent |
+| --- | --- | --- | --- | --- |
+| `receptionist` | 72 jam | 24 jam | 8 jam | 2 jam |
+| `hk` | 24 jam | 8 jam | 4 jam | 1 jam |
+| `laundry` | 120 jam | 48 jam | 24 jam | 8 jam |
+
+### HR Request
+
+| Prioritas | SLA |
+| --- | --- |
+| `normal` | 72 jam |
+| `penting` | 24 jam |
+| `mendesak` | 8 jam |
 
 ## Setup Lokal
 
 ### 1. Clone project
+
 ```bash
 git clone <repo-url>
 cd ga_facility_compliance
 ```
 
 ### 2. Install dependency
+
 ```bash
 composer install
 npm install
 ```
 
 ### 3. Siapkan environment
+
 ```bash
 copy .env.example .env
 php artisan key:generate
 ```
 
 Contoh konfigurasi minimum:
+
 ```env
-APP_NAME="SCM Complaint Management"
+APP_NAME="SEDIA"
 APP_ENV=local
 APP_DEBUG=true
 APP_URL=http://localhost
@@ -271,25 +409,34 @@ DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-### 4. Buat database dan migrasi
+### 4. Migrasi dan seeder
+
 ```bash
 php artisan migrate
 php artisan db:seed
 ```
 
-### 5. Siapkan storage upload
+### 5. Siapkan storage
+
 ```bash
 php artisan storage:link
 php artisan hosting:prepare-storage
 ```
 
 ### 6. Jalankan aplikasi
+
 ```bash
 php artisan serve
 npm run dev
 ```
 
-## Akun Seeder Default
+Alternatif cepat:
+
+```bash
+composer run dev
+```
+
+## Akun Default Seeder
 
 | Email | Role | Password |
 | --- | --- | --- |
@@ -298,50 +445,12 @@ npm run dev
 | `hk@ga.com` | `hk` | `password123` |
 | `laundry@ga.com` | `laundry` | `password123` |
 
-## Format Ticket Number
+## Environment dan Integrasi
 
-| Tipe | Prefix | Contoh |
-| --- | --- | --- |
-| Receptionist | `RCP` | `RCP-0001` |
-| Housekeeping | `HKP` | `HKP-0001` |
-| Laundry | `LDY` | `LDY-0001` |
-
-## Upload Foto
-
-- Upload bersifat opsional.
-- Maksimal 6 file per laporan.
-- Format yang diterima: `jpg`, `jpeg`, `png`, `webp`.
-- Maksimal ukuran per file: 5 MB.
-- File disimpan pada `storage/app/public/complaints`.
-- Agar file tampil dari browser, symlink `public/storage` harus ada.
-
-## Persiapan Hosting dan Produksi
-
-### Checklist minimum
-- Gunakan `APP_ENV=production`.
-- Gunakan `APP_DEBUG=false`.
-- Pastikan `APP_URL` sesuai domain HTTPS.
-- Jalankan `php artisan hosting:prepare-storage`.
-- Pastikan folder `storage` dan `bootstrap/cache` writable.
-- Pastikan `public/storage` mengarah ke `storage/app/public`.
-- Gunakan user database khusus, jangan `root`.
-- Pindahkan secret notifikasi ke `.env`.
-- Jalankan cache config setelah deploy final.
-
-### Command deploy yang umum dipakai
-```bash
-php artisan optimize:clear
-php artisan migrate --force
-php artisan storage:link
-php artisan hosting:prepare-storage
-php artisan config:cache
-php artisan route:cache
-```
-
-## Variabel Environment yang Perlu Diperhatikan
+Variabel yang perlu diperhatikan:
 
 ```env
-APP_NAME="SCM Complaint Management"
+APP_NAME="SEDIA"
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://your-domain.com
@@ -353,42 +462,27 @@ DB_DATABASE=ga_facility_compliance
 DB_USERNAME=your_user
 DB_PASSWORD=your_password
 
-FONNTE_TOKEN=
-FONNTE_GROUP_ID=
-
-VAPID_PUBLIC_KEY=
-VAPID_PRIVATE_KEY=
-VAPID_SUBJECT=mailto:admin@example.com
+WEBPUSH_SUBJECT=mailto:admin@example.com
+WEBPUSH_PUBLIC_KEY=
+WEBPUSH_PRIVATE_KEY=
 ```
 
-## Command Berguna
+## Catatan Penting
 
-```bash
-php artisan optimize:clear
-php artisan optimize
-php artisan migrate
-php artisan db:seed
-php artisan storage:link
-php artisan hosting:prepare-storage
-php artisan test
-```
+- Aset logo README menggunakan branding yang sama dengan halaman publik aplikasi.
+- Ticket checker sudah mendukung pencarian tiket GA dan HR dalam satu endpoint.
+- Complaint baru mengirim notifikasi WhatsApp dan web push jika konfigurasi tersedia.
+- Kredensial WhatsApp pada service saat ini masih hardcoded dan sebaiknya dipindahkan ke `.env`.
+- Foto complaint dan lampiran HR disimpan di disk `public`, sehingga `storage:link` wajib tersedia.
 
-## Catatan Pengembangan
+## Rekomendasi Improvement Lanjutan
 
-- Layout admin memakai AdminLTE yang sudah disesuaikan.
-- Form publik memakai `Choices.js` untuk searchable select.
-- Date filter analytics memakai `Flatpickr`.
-- Chart analytics menggunakan `Chart.js`.
-- Badge tab dashboard per tipe memakai total non-rejected.
-- Analitik pelapor tertinggi sekarang mengecualikan status `rejected`.
-
-## Rekomendasi Pengembangan Lanjutan
-
-- Pindahkan seluruh kredensial notifikasi ke konfigurasi `.env` yang aman.
-- Tambahkan queue worker untuk pengiriman notifikasi WhatsApp dan push.
-- Tambahkan audit trail perubahan status complaint.
-- Tambahkan automated test untuk submit complaint, update status, dan analytics.
-- Tambahkan export laporan per periode.
+- pindahkan seluruh kredensial eksternal ke `.env`
+- tambahkan queue untuk notifikasi agar request submit tetap ringan
+- tambahkan audit trail perubahan status
+- tambahkan automated test untuk submit, ticket lookup, dan update status
+- tambahkan escalation rule untuk tiket overdue
+- tambahkan dashboard gabungan lintas GA dan HR untuk level manajemen
 
 ## Lisensi
 

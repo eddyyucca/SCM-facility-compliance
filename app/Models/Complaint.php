@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
 class Complaint extends Model
 {
@@ -59,7 +59,8 @@ class Complaint extends Model
 
     public static function computeSlaDeadline(string $type, string $priority): Carbon
     {
-        $hours = self::$slaHours[$type][$priority] ?? 24;
+        $fallback = self::$slaHours[$type][$priority] ?? 24;
+        $hours    = SlaSetting::getHours('ga', $type, $priority, $fallback);
         return now()->addHours($hours);
     }
 

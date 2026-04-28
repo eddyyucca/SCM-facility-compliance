@@ -9,7 +9,7 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
-        if (Auth::check()) return redirect()->route('dashboard');
+        if (Auth::check()) return $this->redirectAfterLogin();
         return view('auth.login');
     }
 
@@ -22,7 +22,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended($this->redirectAfterLogin()->getTargetUrl());
         }
 
         return back()->withErrors([
@@ -36,5 +36,16 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login');
+    }
+
+    private function redirectAfterLogin(): \Illuminate\Http\RedirectResponse
+    {
+        $role = Auth::user()->role;
+
+        if ($role === 'hr') {
+            return redirect()->route('hr.dashboard');
+        }
+
+        return redirect()->route('dashboard');
     }
 }

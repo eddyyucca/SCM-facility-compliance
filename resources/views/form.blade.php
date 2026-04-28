@@ -170,7 +170,6 @@
         <div class="hero-copy">
             <div class="eyebrow"><i class="fas fa-layer-group"></i> Pilih layanan</div>
             <h1>Form satu halaman untuk kebutuhan Human Resources dan fasilitas.</h1>
-            <p class="lead">Mulai dari pilihan Human Resources atau GA, lalu isi form yang sesuai. Tampilan Human Resources di halaman ini masih berupa preview UI sebelum disambungkan ke sistem.</p>
         </div>
 
         <div class="service-switch" aria-label="Pilihan layanan">
@@ -185,7 +184,7 @@
             <button type="button" class="service-card" data-service="ga" onclick="switchService('ga')">
                 <span class="service-icon"><i class="fas fa-building-circle-exclamation"></i></span>
                 <span>
-                    <span class="service-title">GA</span>
+                    <span class="service-title">General Affair</span>
                     <span class="service-desc">Pengaduan fasilitas dan area kerja</span>
                 </span>
                 <span class="service-check"><i class="fas fa-check"></i></span>
@@ -194,7 +193,7 @@
                 <span class="service-icon"><i class="fas fa-magnifying-glass-location"></i></span>
                 <span>
                     <span class="service-title">Cek Tiket</span>
-                    <span class="service-desc">Pantau status tiket Human Resources dan GA</span>
+                    <span class="service-desc">Pantau status tiket Human Resources dan General Affair</span>
                 </span>
                 <span class="service-check"><i class="fas fa-check"></i></span>
             </button>
@@ -327,13 +326,18 @@
                 </form>
             </div>
         </div>
+
+        <div class="ticket-strip">
+            <i class="fas fa-qrcode"></i>
+            <span>Setelah laporan Human Resources dikirim, sistem akan membuat nomor tiket dan QR untuk cek status.</span>
+        </div>
     </section>
 
     <section class="section" id="section-ga">
         <div class="form-layout">
             <aside class="side-panel">
-                <div class="side-kicker">GA facility</div>
-                <div class="side-title">Pengaduan fasilitas langsung masuk ke tiket GA.</div>
+                <div class="side-kicker">General Affair facility</div>
+                <div class="side-title">Pengaduan fasilitas langsung masuk ke tiket General Affair.</div>
                 <div class="side-list">
                     <div class="side-item"><i class="fas fa-bed"></i><span>Receptionist untuk fasilitas kamar dan kebutuhan penghuni.</span></div>
                     <div class="side-item"><i class="fas fa-broom"></i><span>Housekeeping untuk kebersihan area, toilet, sampah, dan lingkungan kerja.</span></div>
@@ -345,7 +349,7 @@
                 <div class="form-head">
                     <div class="form-mark"><i class="fas fa-building-circle-exclamation"></i></div>
                     <div>
-                        <div class="form-title">Form Pengaduan Fasilitas GA</div>
+                        <div class="form-title">Form Pengaduan Fasilitas General Affair</div>
                         <div class="form-sub">Isi data fasilitas agar laporan bisa ditangani oleh tim yang sesuai.</div>
                     </div>
                 </div>
@@ -446,7 +450,7 @@
                     </div>
 
                     <div class="actions">
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Kirim Laporan GA</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Kirim Laporan General Affair</button>
                     </div>
                 </form>
             </div>
@@ -454,7 +458,7 @@
 
         <div class="ticket-strip">
             <i class="fas fa-qrcode"></i>
-            <span>Setelah laporan GA dikirim, sistem akan membuat nomor tiket dan QR untuk cek status.</span>
+            <span>Setelah laporan General Affair dikirim, sistem akan membuat nomor tiket dan QR untuk cek status.</span>
         </div>
     </section>
 
@@ -462,11 +466,11 @@
         <div class="form-layout">
             <aside class="side-panel">
                 <div class="side-kicker">Ticket center</div>
-                <div class="side-title">Satu tempat untuk cek perkembangan tiket Human Resources dan GA.</div>
+                <div class="side-title">Satu tempat untuk cek perkembangan tiket Human Resources dan General Affair.</div>
                 <div class="side-list">
                     <div class="side-item"><i class="fas fa-ticket"></i><span>Masukkan nomor tiket yang diterima setelah laporan atau request dikirim.</span></div>
                     <div class="side-item"><i class="fas fa-arrows-rotate"></i><span>Status akan menampilkan progres penanganan dari tim terkait.</span></div>
-                    <div class="side-item"><i class="fas fa-circle-info"></i><span>Saat ini data yang aktif sudah terhubung ke tiket GA. Tiket Human Resources siap digabung saat backend Human Resources dibuat.</span></div>
+                    <div class="side-item"><i class="fas fa-circle-info"></i><span>Saat ini data tiket Human Resources dan General Affair sudah aktif dan dapat dipantau dalam satu halaman.</span></div>
                 </div>
             </aside>
 
@@ -474,8 +478,8 @@
                 <div class="form-head">
                     <div class="form-mark"><i class="fas fa-magnifying-glass-location"></i></div>
                     <div>
-                        <div class="form-title">Cek Status Tiket Human Resources / GA</div>
-                        <div class="form-sub">Gunakan nomor tiket dari Human Resources atau GA untuk melihat status terakhir dalam satu halaman.</div>
+                        <div class="form-title">Cek Status Tiket Human Resources / General Affair</div>
+                        <div class="form-sub">Gunakan nomor tiket dari Human Resources atau General Affair untuk melihat status terakhir dalam satu halaman.</div>
                     </div>
                 </div>
 
@@ -505,12 +509,12 @@ const translations = {
         'Admin': 'Admin',
         'Pilih layanan': 'Select service',
         'Form satu halaman untuk kebutuhan Human Resources dan fasilitas.': 'One-page form for Human Resources requests and facility complaints.',
-        'Mulai dari pilihan Human Resources atau GA, lalu isi form yang sesuai. Tampilan Human Resources di halaman ini masih berupa preview UI sebelum disambungkan ke sistem.': 'Choose Human Resources or GA, then fill in the matching form. The Human Resources view on this page is still a UI preview before it is connected to the system.',
+        'Mulai dari pilihan Human Resources atau General Affair, lalu isi form yang sesuai. Kedua layanan sudah aktif dan dapat digunakan langsung dari halaman ini.': 'Choose Human Resources or General Affair, then fill in the matching form. Both services are active and ready to use directly from this page.',
         'Human Resources': 'Human Resources',
         'Permintaan dan konsultasi karyawan': 'Employee requests and consultation',
         'Pengaduan fasilitas dan area kerja': 'Facility and workplace complaints',
         'Cek Tiket': 'Check Ticket',
-        'Pantau status tiket Human Resources dan GA': 'Track Human Resources and GA ticket status',
+        'Pantau status tiket Human Resources dan General Affair': 'Track Human Resources and General Affair ticket status',
         'Human Resources service': 'Human Resources service',
         'Kebutuhan karyawan masuk lewat jalur yang lebih rapi.': 'Employee requests are collected through a cleaner flow.',
         'Data pelapor dibuat ringkas agar Human Resources mudah mengenali konteks karyawan.': 'Reporter data is kept concise so Human Resources can understand the employee context quickly.',
@@ -546,11 +550,13 @@ const translations = {
         'Opsional. Bisa berupa foto atau dokumen pendukung.': 'Optional. Can be photos or supporting documents.',
         'Reset': 'Reset',
         'Kirim Laporan Human Resources': 'Submit Human Resources Report',
-        'Pengaduan fasilitas langsung masuk ke tiket GA.': 'Facility complaints go directly into GA tickets.',
+        'Setelah laporan Human Resources dikirim, sistem akan membuat nomor tiket dan QR untuk cek status.': 'After the Human Resources report is submitted, the system will create a ticket number and QR code for status checks.',
+        'General Affair facility': 'General Affair facility',
+        'Pengaduan fasilitas langsung masuk ke tiket General Affair.': 'Facility complaints go directly into General Affair tickets.',
         'Receptionist untuk fasilitas kamar dan kebutuhan penghuni.': 'Receptionist for room facilities and resident needs.',
         'Housekeeping untuk kebersihan area, toilet, sampah, dan lingkungan kerja.': 'Housekeeping for area cleanliness, toilets, waste, and the work environment.',
         'Laundry untuk laporan cucian tertukar, rusak, belum selesai, atau kurang jumlah.': 'Laundry for mixed-up, damaged, unfinished, or missing laundry reports.',
-        'Form Pengaduan Fasilitas GA': 'GA Facility Complaint Form',
+        'Form Pengaduan Fasilitas General Affair': 'General Affair Facility Complaint Form',
         'Isi data fasilitas agar laporan bisa ditangani oleh tim yang sesuai.': 'Fill in facility details so the right team can handle the report.',
         'Tipe Komplain': 'Complaint Type',
         'Bangunan / Area': 'Building / Area',
@@ -564,14 +570,14 @@ const translations = {
         'Upload Foto': 'Upload Photo',
         'Klik atau drag foto ke sini': 'Click or drag photos here',
         'Opsional. Maksimal 6 foto dengan format JPG, PNG, atau WEBP.': 'Optional. Maximum 6 photos in JPG, PNG, or WEBP format.',
-        'Kirim Laporan GA': 'Submit GA Report',
-        'Setelah laporan GA dikirim, sistem akan membuat nomor tiket dan QR untuk cek status.': 'After the GA report is submitted, the system will create a ticket number and QR code for status checks.',
-        'Satu tempat untuk cek perkembangan tiket Human Resources dan GA.': 'One place to check Human Resources and GA ticket progress.',
+        'Kirim Laporan General Affair': 'Submit General Affair Report',
+        'Setelah laporan General Affair dikirim, sistem akan membuat nomor tiket dan QR untuk cek status.': 'After the General Affair report is submitted, the system will create a ticket number and QR code for status checks.',
+        'Satu tempat untuk cek perkembangan tiket Human Resources dan General Affair.': 'One place to check Human Resources and General Affair ticket progress.',
         'Masukkan nomor tiket yang diterima setelah laporan atau request dikirim.': 'Enter the ticket number received after a report or request is submitted.',
         'Status akan menampilkan progres penanganan dari tim terkait.': 'The status shows handling progress from the related team.',
-        'Saat ini data yang aktif sudah terhubung ke tiket GA. Tiket Human Resources siap digabung saat backend Human Resources dibuat.': 'Currently active data is connected to GA tickets. Human Resources tickets are ready to be merged once the Human Resources backend is built.',
-        'Cek Status Tiket Human Resources / GA': 'Check Human Resources / GA Ticket Status',
-        'Gunakan nomor tiket dari Human Resources atau GA untuk melihat status terakhir dalam satu halaman.': 'Use a Human Resources or GA ticket number to view the latest status on one page.',
+        'Saat ini data tiket Human Resources dan General Affair sudah aktif dan dapat dipantau dalam satu halaman.': 'Human Resources and General Affair ticket data are now active and can be monitored from one page.',
+        'Cek Status Tiket Human Resources / General Affair': 'Check Human Resources / General Affair Ticket Status',
+        'Gunakan nomor tiket dari Human Resources atau General Affair untuk melihat status terakhir dalam satu halaman.': 'Use a Human Resources or General Affair ticket number to view the latest status on one page.',
         'Contoh: HR-0001, RCP-0001, HKP-0001, LDY-0001': 'Example: HR-0001, RCP-0001, HKP-0001, LDY-0001',
         'Mencari tiket...': 'Searching ticket...',
         'Mohon perbaiki:': 'Please fix:',
@@ -615,11 +621,11 @@ const translations = {
         'Admin': '管理员',
         'Pilih layanan': '选择服务',
         'Form satu halaman untuk kebutuhan HR dan fasilitas.': '用于人力资源需求和设施投诉的一页表单。',
-        'Mulai dari pilihan HR atau GA, lalu isi form yang sesuai. Tampilan HR di halaman ini masih berupa preview UI sebelum disambungkan ke sistem.': '先选择 HR 或 GA，然后填写相应表单。本页 HR 表单目前仍是界面预览，尚未连接到系统。',
+        'Mulai dari pilihan HR atau General Affair, lalu isi form yang sesuai. Kedua layanan sudah aktif dan dapat digunakan langsung dari halaman ini.': '先选择 HR 或 General Affair，然后填写相应表单。两项服务现已启用，并可直接在此页面使用。',
         'Permintaan dan konsultasi karyawan': '员工申请和咨询',
         'Pengaduan fasilitas dan area kerja': '设施和工作区域投诉',
         'Cek Tiket': '查询工单',
-        'Pantau status tiket HR dan GA': '跟踪 HR 和 GA 工单状态',
+        'Pantau status tiket HR dan General Affair': '跟踪 HR 和 General Affair 工单状态',
         'Kebutuhan karyawan masuk lewat jalur yang lebih rapi.': '员工需求通过更清晰的流程提交。',
         'Data pelapor dibuat ringkas agar HR mudah mengenali konteks karyawan.': '提交人信息保持简洁，便于 HR 快速了解员工背景。',
         'Jenis layanan dipisahkan untuk surat, payroll, absensi, benefit, dan konsultasi.': '服务类型按证明、薪资、考勤、福利和咨询区分。',
@@ -654,12 +660,14 @@ const translations = {
         'Opsional. Bisa berupa foto atau dokumen pendukung.': '可选。可以是照片或支持文件。',
         'Reset': '重置',
         'Kirim Preview HR': '提交 HR 预览',
+        'Setelah laporan Human Resources dikirim, sistem akan membuat nomor tiket dan QR untuk cek status.': '提交 Human Resources 报告后，系统会生成工单号和用于查询状态的二维码。',
         'Form HR ini baru tampilan UI. Penyimpanan data dan dashboard HR belum diaktifkan.': '此 HR 表单目前只是界面预览。数据保存和 HR 仪表板尚未启用。',
-        'Pengaduan fasilitas langsung masuk ke tiket GA.': '设施投诉会直接进入 GA 工单。',
+        'General Affair facility': 'General Affair facility',
+        'Pengaduan fasilitas langsung masuk ke tiket General Affair.': '设施投诉会直接进入 General Affair 工单。',
         'Receptionist untuk fasilitas kamar dan kebutuhan penghuni.': 'Receptionist 用于房间设施和住户需求。',
         'Housekeeping untuk kebersihan area, toilet, sampah, dan lingkungan kerja.': 'Housekeeping 用于区域清洁、卫生间、垃圾和工作环境。',
         'Laundry untuk laporan cucian tertukar, rusak, belum selesai, atau kurang jumlah.': 'Laundry 用于衣物混淆、损坏、未完成或数量不足的报告。',
-        'Form Pengaduan Fasilitas GA': 'GA 设施投诉表单',
+        'Form Pengaduan Fasilitas General Affair': 'General Affair 设施投诉表单',
         'Isi data fasilitas agar laporan bisa ditangani oleh tim yang sesuai.': '填写设施信息，以便相关团队处理报告。',
         'Tipe Komplain': '投诉类型',
         'Bangunan / Area': '建筑 / 区域',
@@ -673,14 +681,14 @@ const translations = {
         'Upload Foto': '上传照片',
         'Klik atau drag foto ke sini': '点击或拖拽照片到这里',
         'Opsional. Maksimal 6 foto dengan format JPG, PNG, atau WEBP.': '可选。最多 6 张照片，格式为 JPG、PNG 或 WEBP。',
-        'Kirim Laporan GA': '提交 GA 报告',
-        'Setelah laporan GA dikirim, sistem akan membuat nomor tiket dan QR untuk cek status.': 'GA 报告提交后，系统会生成工单号和用于查询状态的二维码。',
-        'Satu tempat untuk cek perkembangan tiket HR dan GA.': '在一个页面查询 HR 和 GA 工单进度。',
+        'Kirim Laporan General Affair': '提交 General Affair 报告',
+        'Setelah laporan General Affair dikirim, sistem akan membuat nomor tiket dan QR untuk cek status.': 'General Affair 报告提交后，系统会生成工单号和用于查询状态的二维码。',
+        'Satu tempat untuk cek perkembangan tiket HR dan General Affair.': '在一个页面查询 HR 和 General Affair 工单进度。',
         'Masukkan nomor tiket yang diterima setelah laporan atau request dikirim.': '请输入报告或申请提交后收到的工单号。',
         'Status akan menampilkan progres penanganan dari tim terkait.': '状态会显示相关团队的处理进度。',
-        'Saat ini data yang aktif sudah terhubung ke tiket GA. Tiket HR siap digabung saat backend HR dibuat.': '当前可用数据已连接到 GA 工单。HR 后端完成后即可合并 HR 工单。',
-        'Cek Status Tiket HR / GA': '查询 HR / GA 工单状态',
-        'Gunakan nomor tiket dari HR atau GA untuk melihat status terakhir dalam satu halaman.': '使用 HR 或 GA 工单号，在同一页面查看最新状态。',
+        'Saat ini data tiket HR dan General Affair sudah aktif dan dapat dipantau dalam satu halaman.': '当前 HR 和 General Affair 工单数据已启用，并可在同一页面中查看。',
+        'Cek Status Tiket HR / General Affair': '查询 HR / General Affair 工单状态',
+        'Gunakan nomor tiket dari HR atau General Affair untuk melihat status terakhir dalam satu halaman.': '使用 HR 或 General Affair 工单号，在同一页面查看最新状态。',
         'Contoh: HR-0001, RCP-0001, HKP-0001, LDY-0001': '例如：HR-0001、RCP-0001、HKP-0001、LDY-0001',
         'Mencari tiket...': '正在查询工单...',
         'Mohon perbaiki:': '请修正：',
@@ -908,7 +916,7 @@ async function cekTiket() {
             return;
         }
 
-        const ticketGroup = ticket.startsWith('HR-') ? 'Human Resources' : 'GA';
+        const ticketGroup = ticket.startsWith('HR-') ? 'Human Resources' : 'General Affair';
         const overdue = data.is_overdue ? `<span style="color:#dc2626;font-size:.78rem;font-weight:800;">${translateText('Overdue SLA')}</span>` : '';
         const room = data.room ? `<div><div class="ticket-label">${translateText('Kamar')}</div><div class="ticket-value">${data.room}</div></div>` : '';
         const adminNotes = data.admin_notes

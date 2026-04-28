@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\SlaSetting;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
@@ -64,7 +65,9 @@ class HrRequest extends Model
 
     public static function computeSlaDeadline(string $priority): Carbon
     {
-        return now()->addHours(self::$slaHours[$priority] ?? self::$slaHours['normal']);
+        $fallback = self::$slaHours[$priority] ?? self::$slaHours['normal'];
+        $hours    = SlaSetting::getHours('hr', 'hr_request', $priority, $fallback);
+        return now()->addHours($hours);
     }
 
     public function typeLabel(): string
