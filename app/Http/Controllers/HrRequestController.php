@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HrRequest;
+use App\Services\WhatsappService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -10,6 +11,12 @@ use Illuminate\Support\Facades\Storage;
 
 class HrRequestController extends Controller
 {
+    public function __construct(
+        private WhatsappService $whatsappService,
+    )
+    {
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -66,6 +73,14 @@ class HrRequestController extends Controller
             'sla_deadline' => HrRequest::computeSlaDeadline($data['hr_priority']),
             'status' => 'open',
         ]);
+
+        $waResult = $this->whatsappService->sendHrRequestToPersonal($hrRequest);
+        if (! $waResult['success']) {
+            Log::warning('HR request created but WhatsApp notification failed.', [
+                'ticket_number' => $hrRequest->ticket_number,
+                'response' => $waResult['response'],
+            ]);
+        }
 
         return redirect()->route('ticket.success')
             ->with('submitted_ticket', $hrRequest->ticket_number);

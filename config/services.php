@@ -41,4 +41,12 @@ return [
         'private_key' => env('WEBPUSH_PRIVATE_KEY'),
     ],
 
+    'whatsapp' => [
+        'driver' => env('WHATSAPP_DRIVER', 'fonnte'),
+        'token' => env('WHATSAPP_TOKEN'),
+        'group_id' => env('WHATSAPP_GROUP_ID'),
+        'hr_target' => env('WHATSAPP_HR_TARGET', '081250653005'),
+        'api_url' => env('WHATSAPP_API_URL', 'https://api.fonnte.com/send'),
+    ],
+
 ];
