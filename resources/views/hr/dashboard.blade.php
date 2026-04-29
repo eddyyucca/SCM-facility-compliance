@@ -376,6 +376,83 @@
     </div>
 </div>
 
+{{-- ── Penilaian & Feedback ── --}}
+<div class="card mt-3">
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <h3 class="card-title mb-0" style="font-size:.9rem;font-weight:700;">
+            <i class="fas fa-star text-warning mr-2"></i>
+            Penilaian Pengguna
+            <span class="period-badge badge badge-light ml-1" style="font-weight:600;font-size:.72rem;">
+                {{ $dateFrom->format('d M') }} – {{ $dateTo->format('d M Y') }}
+            </span>
+        </h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3 text-center mb-3">
+                <div id="fb-avg-val" style="font-size:2.8rem;font-weight:900;line-height:1;color:#f59f00;">
+                    {{ $feedbackStats['avg_rating'] !== null ? number_format($feedbackStats['avg_rating'],1) : '—' }}
+                </div>
+                <div id="fb-avg-stars" style="font-size:1.3rem;color:#ffc107;margin:4px 0;">
+                    @php $r = round($feedbackStats['avg_rating'] ?? 0); @endphp
+                    @for($i=1;$i<=5;$i++)<span>{{ $i<=$r ? '★' : '☆' }}</span>@endfor
+                </div>
+                <div style="font-size:.7rem;text-transform:uppercase;font-weight:700;color:#6c757d;letter-spacing:.05em;">Rata-rata Rating</div>
+                <div class="row mt-2 text-center">
+                    <div class="col-6">
+                        <div id="fb-rated" style="font-size:1.3rem;font-weight:800;">{{ $feedbackStats['rated_count'] }}</div>
+                        <div style="font-size:.68rem;color:#6c757d;text-transform:uppercase;">Dinilai</div>
+                    </div>
+                    <div class="col-6">
+                        <div id="fb-rate-pct" style="font-size:1.3rem;font-weight:800;">{{ $feedbackStats['participation_rate'] }}%</div>
+                        <div style="font-size:.68rem;color:#6c757d;text-transform:uppercase;">Partisipasi</div>
+                    </div>
+                </div>
+                @if($feedbackStats['auto_rated'] > 0)
+                <div style="margin-top:8px;">
+                    <span id="fb-auto-badge" style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:999px;font-size:.72rem;padding:2px 10px;">
+                        <i class="fas fa-robot mr-1"></i>{{ $feedbackStats['auto_rated'] }} auto-rated
+                    </span>
+                </div>
+                @endif
+            </div>
+            <div class="col-md-3 mb-3">
+                <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6c757d;margin-bottom:10px;">Distribusi Bintang</div>
+                <div id="fb-dist-wrap">
+                    @php $maxD = max(1, max($feedbackStats['rating_dist'])); @endphp
+                    @foreach(array_reverse([1,2,3,4,5]) as $star)
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:.82rem;">
+                        <span style="min-width:20px;text-align:right;font-weight:600;">{{ $star }}</span>
+                        <span style="color:#ffc107;">★</span>
+                        <div style="flex:1;background:#f0f4f8;border-radius:999px;height:6px;overflow:hidden;">
+                            <div style="height:6px;border-radius:999px;background:#ffc107;width:{{ $feedbackStats['rating_dist'][$star] > 0 ? round($feedbackStats['rating_dist'][$star]/$maxD*100) : 0 }}%;"></div>
+                        </div>
+                        <span style="min-width:24px;font-weight:700;color:#495057;">{{ $feedbackStats['rating_dist'][$star] }}</span>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6c757d;margin-bottom:10px;">Komentar Terbaru</div>
+                <div id="fb-comments-wrap">
+                    @forelse($feedbackStats['recent_feedback'] as $fb)
+                    <div style="background:#fffbeb;border-left:3px solid #ffc107;border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:.83rem;">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                            <span style="font-weight:700;">{{ $fb['reporter'] }}</span>
+                            <span style="color:#ffc107;">{{ str_repeat('★',$fb['rating']) }}{{ str_repeat('☆',5-$fb['rating']) }}</span>
+                        </div>
+                        <div style="color:#495057;line-height:1.5;">"{{ $fb['feedback_text'] }}"</div>
+                        <div style="font-size:.72rem;color:#adb5bd;margin-top:4px;">{{ $fb['feedback_at'] }} — {{ $fb['service'] }}</div>
+                    </div>
+                    @empty
+                    <div style="color:#adb5bd;font-size:.84rem;padding:16px 0;text-align:center;">Belum ada komentar dari pengguna.</div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -488,6 +565,59 @@ function updateRecent(items) {
         </tr>`).join('');
 }
 
+function updateFeedback(fb) {
+    if (!fb) return;
+    const avgEl = el('fb-avg-val');
+    const starsEl = el('fb-avg-stars');
+    if (avgEl) avgEl.textContent = fb.avg_rating !== null ? parseFloat(fb.avg_rating).toFixed(1) : '—';
+    if (starsEl) {
+        const r = fb.avg_rating !== null ? Math.round(fb.avg_rating) : 0;
+        starsEl.innerHTML = [1,2,3,4,5].map(i => `<span style="color:#ffc107">${i <= r ? '★' : '☆'}</span>`).join('');
+    }
+    setText('fb-rated',    fb.rated_count);
+    setText('fb-rate-pct', fb.participation_rate + '%');
+    const autoBadge = el('fb-auto-badge');
+    if (autoBadge) autoBadge.innerHTML = `<i class="fas fa-robot mr-1"></i>${fb.auto_rated} auto-rated`;
+
+    // distribution
+    const distWrap = el('fb-dist-wrap');
+    if (distWrap) {
+        const maxD = Math.max(1, ...Object.values(fb.rating_dist));
+        distWrap.innerHTML = [5,4,3,2,1].map(s => {
+            const cnt = fb.rating_dist[s] || 0;
+            const pct = Math.round(cnt / maxD * 100);
+            return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:.82rem;">
+                <span style="min-width:20px;text-align:right;font-weight:600;">${s}</span>
+                <span style="color:#ffc107;">★</span>
+                <div style="flex:1;background:#f0f4f8;border-radius:999px;height:6px;overflow:hidden;">
+                    <div style="height:6px;border-radius:999px;background:#ffc107;width:${pct}%;"></div>
+                </div>
+                <span style="min-width:24px;font-weight:700;color:#495057;">${cnt}</span>
+            </div>`;
+        }).join('');
+    }
+
+    // comments
+    const commentsWrap = el('fb-comments-wrap');
+    if (commentsWrap) {
+        if (!fb.recent_feedback || fb.recent_feedback.length === 0) {
+            commentsWrap.innerHTML = '<div style="color:#adb5bd;font-size:.84rem;padding:16px 0;text-align:center;">Belum ada komentar dari pengguna.</div>';
+        } else {
+            commentsWrap.innerHTML = fb.recent_feedback.map(f => {
+                const stars = '★'.repeat(f.rating) + '☆'.repeat(5 - f.rating);
+                return `<div style="background:#fffbeb;border-left:3px solid #ffc107;border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:.83rem;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                        <span style="font-weight:700;">${f.reporter}</span>
+                        <span style="color:#ffc107;">${stars}</span>
+                    </div>
+                    <div style="color:#495057;line-height:1.5;">"${f.feedback_text}"</div>
+                    <div style="font-size:.72rem;color:#adb5bd;margin-top:4px;">${f.feedback_at} — ${f.service}</div>
+                </div>`;
+            }).join('');
+        }
+    }
+}
+
 function updatePeriodLabels(from, to) {
     const fmt = d => {
         const dt = new Date(d);
@@ -544,6 +674,9 @@ async function loadStats(dateFrom, dateTo) {
 
         // Recent table
         updateRecent(data.recent);
+
+        // Feedback stats
+        updateFeedback(data.feedbackStats);
 
         // Period labels
         updatePeriodLabels(dateFrom, dateTo);

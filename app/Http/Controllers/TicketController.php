@@ -66,6 +66,30 @@ class TicketController extends Controller
         return view('ticket.success', compact('complaint'));
     }
 
+    /** Submit user feedback/rating for a closed ticket */
+    public function submitFeedback(Request $request, string $ticket)
+    {
+        $data = $request->validate([
+            'rating'        => 'required|integer|min:1|max:5',
+            'feedback_text' => 'nullable|string|max:1000',
+        ]);
+
+        $complaint = $this->findTicket(strtoupper(trim($ticket)));
+        abort_unless($complaint, 404);
+        abort_unless($complaint->status === 'closed', 422);
+        abort_unless(is_null($complaint->rating), 422);
+
+        $complaint->update([
+            'rating'        => (int) $data['rating'],
+            'feedback_text' => $data['feedback_text'] ?? null,
+            'feedback_at'   => now(),
+            'feedback_auto' => false,
+        ]);
+
+        return redirect()->route('ticket.show', $ticket)
+            ->with('feedback_success', true);
+    }
+
     private function findTicket(string $ticket): Complaint|HrRequest|null
     {
         return Complaint::where('ticket_number', $ticket)->first()

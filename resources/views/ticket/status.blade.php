@@ -9,6 +9,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root{--primary:#0d6efd;--primary-l:#e7f0ff;--line:#dde6f5;--text:#1a2340;--muted:#6b7a99;}
+        .feedback-card{background:#fff;border-radius:18px;box-shadow:0 8px 32px rgba(13,110,253,.1);padding:24px;margin-bottom:16px;}
+        .star-group{display:flex;gap:6px;justify-content:center;margin:12px 0;}
+        .star-group input[type=radio]{display:none;}
+        .star-group label{font-size:2rem;cursor:pointer;color:#dee2e6;transition:color .15s;}
+        .star-group input[type=radio]:checked ~ label,.star-group label:hover,.star-group label:hover ~ label{color:#ffc107;}
+        .star-group{flex-direction:row-reverse;}
+        .star-group label:hover,.star-group label:hover ~ label,.star-group input:checked ~ label{color:#ffc107;}
+        .feedback-btn{width:100%;padding:11px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:.92rem;font-weight:700;cursor:pointer;margin-top:10px;transition:background .15s;}
+        .feedback-btn:hover{background:#0b5ed7;}
+        .rating-display{display:flex;gap:4px;justify-content:center;font-size:1.6rem;margin:10px 0;}
+        .auto-badge{display:inline-block;background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:999px;font-size:.74rem;padding:2px 10px;}
         *{box-sizing:border-box;margin:0;padding:0;}
         body{font-family:'Figtree',sans-serif;background:linear-gradient(135deg,#e8eefa,#f0f4fc);min-height:100vh;padding:24px 16px;}
         .container{max-width:600px;margin:0 auto;}
@@ -145,6 +156,66 @@
         </div>
         @endif
     </div>
+
+    {{-- Feedback section (only for closed tickets) --}}
+    @if($complaint->status === 'closed')
+    <div class="feedback-card">
+        <div style="font-size:.82rem;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.05em;margin-bottom:14px;">
+            <i class="fas fa-star" style="color:#ffc107;margin-right:6px;"></i>Penilaian Layanan
+        </div>
+
+        @if(session('feedback_success'))
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;color:#166534;font-size:.87rem;margin-bottom:14px;">
+            <i class="fas fa-check-circle mr-2"></i>Terima kasih! Penilaian Anda telah tersimpan.
+        </div>
+        @endif
+
+        @if($complaint->rating)
+            {{-- Already rated — show result --}}
+            <div style="text-align:center;">
+                <div class="rating-display">
+                    @for($i = 1; $i <= 5; $i++)
+                        <span style="color:{{ $i <= $complaint->rating ? '#ffc107' : '#dee2e6' }};">★</span>
+                    @endfor
+                </div>
+                <div style="font-size:.85rem;font-weight:600;margin-bottom:6px;">{{ $complaint->rating }} / 5</div>
+                @if($complaint->feedback_auto)
+                    <span class="auto-badge"><i class="fas fa-robot mr-1"></i>Dinilai otomatis</span>
+                @else
+                    <div style="font-size:.78rem;color:var(--muted);margin-top:4px;">
+                        Dikirim {{ $complaint->feedback_at?->format('d M Y H:i') }}
+                    </div>
+                @endif
+                @if($complaint->feedback_text)
+                <div style="background:#f8f9fa;border-radius:10px;padding:10px 14px;font-size:.84rem;margin-top:12px;color:var(--text);line-height:1.6;border-left:3px solid #ffc107;">
+                    "{{ $complaint->feedback_text }}"
+                </div>
+                @endif
+            </div>
+        @else
+            {{-- Not yet rated — show form --}}
+            <p style="font-size:.85rem;color:var(--muted);text-align:center;margin-bottom:6px;">Bagaimana penilaian Anda terhadap penanganan laporan ini?</p>
+            <form method="POST" action="{{ route('ticket.feedback', $complaint->ticket_number) }}" id="feedbackForm">
+                @csrf
+                <div class="star-group" id="starGroup">
+                    @for($i = 5; $i >= 1; $i--)
+                    <input type="radio" name="rating" id="star{{ $i }}" value="{{ $i }}" {{ old('rating') == $i ? 'checked' : '' }}>
+                    <label for="star{{ $i }}" title="{{ $i }} bintang">★</label>
+                    @endfor
+                </div>
+                @error('rating')
+                <div style="color:#dc3545;font-size:.8rem;text-align:center;margin-bottom:6px;">{{ $message }}</div>
+                @enderror
+                <textarea name="feedback_text" placeholder="Tambahkan komentar (opsional)..."
+                    style="width:100%;border:1px solid #dee2e6;border-radius:10px;padding:10px 12px;font-size:.85rem;resize:vertical;min-height:70px;font-family:inherit;margin-top:4px;"
+                    maxlength="1000">{{ old('feedback_text') }}</textarea>
+                <button type="submit" class="feedback-btn">
+                    <i class="fas fa-paper-plane mr-2"></i>Kirim Penilaian
+                </button>
+            </form>
+        @endif
+    </div>
+    @endif
 
     <div style="text-align:center;padding:16px 0;font-size:.78rem;color:var(--muted);">
         SEDIA Service Management - {{ now()->format('Y') }}

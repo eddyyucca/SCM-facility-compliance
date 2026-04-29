@@ -12,8 +12,7 @@ class AnalyticsController extends Controller
     public function index(Request $request)
     {
         $user      = Auth::user();
-        $allTypes  = ['receptionist', 'hk', 'laundry'];
-        $userTypes = $user->isSuperAdmin() ? $allTypes : [$user->role];
+        $userTypes = $user->gaTypes();
 
         $dateFrom = $request->filled('date_from')
             ? Carbon::parse($request->date_from)->startOfDay()
@@ -122,7 +121,28 @@ class AnalyticsController extends Controller
             }
         }
 
-        // ── 9. Building detail table ──
+        // ── 9. Feedback / rating stats ──
+        $ratedQuery   = (clone $base)->where('status', 'closed')->whereNotNull('rating');
+        $ratedCount   = (clone $ratedQuery)->count();
+        $autoRated    = (clone $ratedQuery)->where('feedback_auto', true)->count();
+        $avgRating    = $ratedCount > 0
+            ? round((clone $ratedQuery)->avg('rating'), 2)
+            : null;
+        $ratingDist   = [];
+        for ($s = 1; $s <= 5; $s++) {
+            $ratingDist[$s] = (clone $ratedQuery)->where('rating', $s)->count();
+        }
+        $participationRate = $totalClosed > 0 ? round($ratedCount / $totalClosed * 100, 1) : 0;
+        $recentFeedback = (clone $base)
+            ->where('status', 'closed')
+            ->whereNotNull('rating')
+            ->where('feedback_auto', false)
+            ->whereNotNull('feedback_text')
+            ->orderByDesc('feedback_at')
+            ->limit(5)
+            ->get(['ticket_number', 'type', 'reporter_name', 'rating', 'feedback_text', 'feedback_at']);
+
+        // ── 10. Building detail table ──
         $buildingDetail = (clone $base)
             ->whereNotNull('building')
             ->where('building', '!=', '')
@@ -140,7 +160,9 @@ class AnalyticsController extends Controller
             'onTime', 'lateClose', 'slaRate', 'overdue',
             'dowData', 'dowLabels', 'hourData',
             'trendLabels', 'trendDataset',
-            'buildingDetail', 'dateFrom', 'dateTo', 'userTypes'
+            'buildingDetail', 'dateFrom', 'dateTo', 'userTypes',
+            'avgRating', 'ratingDist', 'ratedCount', 'autoRated',
+            'participationRate', 'recentFeedback'
         ));
     }
 }

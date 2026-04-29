@@ -13,12 +13,15 @@ class Complaint extends Model
         'department', 'building', 'room_number', 'location',
         'category', 'priority', 'status', 'description', 'photos',
         'admin_notes', 'sla_deadline', 'resolved_at',
+        'rating', 'feedback_text', 'feedback_at', 'feedback_auto',
     ];
 
     protected $casts = [
-        'sla_deadline' => 'datetime',
-        'resolved_at'  => 'datetime',
-        'photos'       => 'array',
+        'sla_deadline'  => 'datetime',
+        'resolved_at'   => 'datetime',
+        'feedback_at'   => 'datetime',
+        'photos'        => 'array',
+        'feedback_auto' => 'boolean',
     ];
 
     // SLA in hours per type + priority

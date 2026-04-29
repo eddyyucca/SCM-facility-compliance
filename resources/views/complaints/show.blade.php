@@ -153,6 +153,54 @@
             </div>
         </div>
 
+        {{-- Feedback / Rating --}}
+        @if($complaint->status === 'closed')
+        <div class="card mb-3">
+            <div class="card-header py-2">
+                <h3 class="card-title mb-0" style="font-size:.88rem;font-weight:700;">
+                    <i class="fas fa-star text-warning mr-2"></i> Penilaian Pengguna
+                </h3>
+            </div>
+            <div class="card-body">
+                @if($complaint->rating)
+                    <div class="d-flex align-items-center" style="gap:16px;flex-wrap:wrap;">
+                        <div style="text-align:center;min-width:80px;">
+                            <div style="font-size:2.4rem;font-weight:900;line-height:1;color:#f59f00;">{{ $complaint->rating }}</div>
+                            <div style="font-size:1.2rem;color:#ffc107;">
+                                @for($i=1;$i<=5;$i++)<span>{{ $i<=$complaint->rating ? '★' : '☆' }}</span>@endfor
+                            </div>
+                            <div style="font-size:.68rem;text-transform:uppercase;color:#6c757d;font-weight:700;margin-top:2px;">dari 5</div>
+                        </div>
+                        <div style="flex:1;">
+                            @if($complaint->feedback_auto)
+                                <span style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:999px;font-size:.74rem;padding:3px 10px;display:inline-block;margin-bottom:6px;">
+                                    <i class="fas fa-robot mr-1"></i> Dinilai otomatis (tidak ada feedback setelah 224 jam)
+                                </span>
+                            @else
+                                <div style="font-size:.72rem;color:#6c757d;margin-bottom:6px;">
+                                    <i class="fas fa-calendar-alt mr-1"></i> Dikirim {{ $complaint->feedback_at?->format('d M Y H:i') }}
+                                </div>
+                            @endif
+                            @if($complaint->feedback_text)
+                            <div style="background:#fffbeb;border-left:3px solid #ffc107;border-radius:0 8px 8px 0;padding:10px 14px;font-size:.86rem;line-height:1.6;color:#495057;font-style:italic;">
+                                "{{ $complaint->feedback_text }}"
+                            </div>
+                            @else
+                                <div style="font-size:.82rem;color:#adb5bd;">Tidak ada komentar tertulis.</div>
+                            @endif
+                        </div>
+                    </div>
+                @else
+                    <div style="text-align:center;padding:16px 0;color:#adb5bd;">
+                        <i class="fas fa-star-half-alt" style="font-size:1.6rem;margin-bottom:8px;display:block;color:#dee2e6;"></i>
+                        <div style="font-size:.84rem;font-weight:600;">Belum ada penilaian</div>
+                        <div style="font-size:.76rem;margin-top:4px;">Pengguna dapat memberi penilaian di halaman status tiket</div>
+                    </div>
+                @endif
+            </div>
+        </div>
+        @endif
+
     </div>
 
     {{-- Right: Update & summary --}}

@@ -26,12 +26,15 @@ class HrRequest extends Model
         'admin_notes',
         'sla_deadline',
         'resolved_at',
+        'rating', 'feedback_text', 'feedback_at', 'feedback_auto',
     ];
 
     protected $casts = [
-        'attachments' => 'array',
-        'sla_deadline' => 'datetime',
-        'resolved_at' => 'datetime',
+        'attachments'   => 'array',
+        'sla_deadline'  => 'datetime',
+        'resolved_at'   => 'datetime',
+        'feedback_at'   => 'datetime',
+        'feedback_auto' => 'boolean',
     ];
 
     public static array $slaHours = [

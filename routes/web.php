@@ -20,6 +20,7 @@ Route::post('/complaint/submit', [ComplaintController::class, 'store'])->name('c
 Route::post('/hr-requests/submit', [HrRequestController::class, 'store'])->name('hr-requests.store');
 
 Route::get('/tiket/{ticket}', [TicketController::class, 'show'])->name('ticket.show');
+Route::post('/tiket/{ticket}/feedback', [TicketController::class, 'submitFeedback'])->name('ticket.feedback');
 Route::get('/api/cek-tiket', [TicketController::class, 'check'])->name('api.cek-tiket');
 Route::get('/complaint/success', [TicketController::class, 'success'])->name('ticket.success');
 Route::get('/complaint-photos/{filename}', [ComplaintPhotoController::class, 'show'])->name('complaint.photos.show');

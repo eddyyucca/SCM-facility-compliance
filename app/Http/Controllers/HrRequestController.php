@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HrRequest;
+use App\Services\WebPushService;
 use App\Services\WhatsappService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -13,8 +14,8 @@ class HrRequestController extends Controller
 {
     public function __construct(
         private WhatsappService $whatsappService,
-    )
-    {
+        private WebPushService  $webPushService,
+    ) {
     }
 
     public function store(Request $request)
@@ -77,10 +78,12 @@ class HrRequestController extends Controller
         $waResult = $this->whatsappService->sendHrRequestToPersonal($hrRequest);
         if (! $waResult['success']) {
             Log::warning('HR request created but WhatsApp notification failed.', [
-                'ticket_number' => $hrRequest->ticket_number,
+                'ticket_number'  => $hrRequest->ticket_number,
                 'response' => $waResult['response'],
             ]);
         }
+
+        $this->webPushService->sendHrRequestCreated($hrRequest);
 
         return redirect()->route('ticket.success')
             ->with('submitted_ticket', $hrRequest->ticket_number);
@@ -97,6 +100,7 @@ class HrRequestController extends Controller
         $chartData       = $this->chartData($dateFrom, $dateTo);
         $resolutionChart = $this->buildResolutionChart($dateFrom, $dateTo);
         $recent          = $this->buildRecent($dateFrom, $dateTo);
+        $feedbackStats   = $this->buildFeedbackStats($dateFrom, $dateTo);
         $outstanding     = HrRequest::whereIn('status', ['open', 'progress'])
             ->where('sla_deadline', '<', now())
             ->orderBy('sla_deadline')
@@ -106,7 +110,7 @@ class HrRequestController extends Controller
         return view('hr.dashboard', compact(
             'summary', 'serviceStats', 'outstanding',
             'recent', 'chartData', 'resolutionChart',
-            'dateFrom', 'dateTo'
+            'feedbackStats', 'dateFrom', 'dateTo'
         ));
     }
 
@@ -122,6 +126,7 @@ class HrRequestController extends Controller
             'chartData'       => $this->chartData($dateFrom, $dateTo),
             'resolutionChart' => $this->buildResolutionChart($dateFrom, $dateTo),
             'recent'          => $this->buildRecent($dateFrom, $dateTo),
+            'feedbackStats'   => $this->buildFeedbackStats($dateFrom, $dateTo),
         ]);
     }
 
@@ -330,6 +335,48 @@ class HrRequestController extends Controller
                 'fill' => true,
                 'tension' => 0.35,
             ]],
+        ];
+    }
+
+    private function buildFeedbackStats(Carbon $from, Carbon $to): array
+    {
+        $base       = HrRequest::whereBetween('created_at', [$from, $to]);
+        $closed     = (clone $base)->where('status', 'closed')->count();
+        $ratedQuery = (clone $base)->where('status', 'closed')->whereNotNull('rating');
+        $ratedCount = (clone $ratedQuery)->count();
+        $autoRated  = (clone $ratedQuery)->where('feedback_auto', true)->count();
+        $avgRating  = $ratedCount > 0
+            ? round((float)(clone $ratedQuery)->avg('rating'), 2)
+            : null;
+        $dist = [];
+        for ($s = 1; $s <= 5; $s++) {
+            $dist[$s] = (clone $ratedQuery)->where('rating', $s)->count();
+        }
+        $recentFeedback = (clone $base)
+            ->where('status', 'closed')
+            ->whereNotNull('rating')
+            ->where('feedback_auto', false)
+            ->whereNotNull('feedback_text')
+            ->orderByDesc('feedback_at')
+            ->limit(5)
+            ->get(['ticket_number', 'employee_name', 'service_type', 'rating', 'feedback_text', 'feedback_at'])
+            ->map(fn ($r) => [
+                'ticket_number'  => $r->ticket_number,
+                'reporter'       => $r->employee_name,
+                'service'        => $r->service_type,
+                'rating'         => $r->rating,
+                'feedback_text'  => $r->feedback_text,
+                'feedback_at'    => $r->feedback_at?->format('d M Y H:i'),
+            ])
+            ->all();
+
+        return [
+            'avg_rating'         => $avgRating,
+            'rating_dist'        => $dist,
+            'rated_count'        => $ratedCount,
+            'auto_rated'         => $autoRated,
+            'participation_rate' => $closed > 0 ? round($ratedCount / $closed * 100, 1) : 0,
+            'recent_feedback'    => $recentFeedback,
         ];
     }
 

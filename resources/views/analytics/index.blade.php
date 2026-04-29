@@ -371,6 +371,83 @@
     </div>
 </div>
 
+{{-- ── Feedback / Rating Section ── --}}
+<div class="card analytics-card analytics-panel analytics-panel-warning mt-3">
+    <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-star text-warning"></i> Penilaian & Feedback Pengguna</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {{-- Summary --}}
+            <div class="col-md-3 mb-3">
+                <div style="text-align:center;padding:16px 10px;">
+                    @if($avgRating !== null)
+                    <div style="font-size:3rem;font-weight:900;line-height:1;color:#f59f00;">{{ number_format($avgRating,1) }}</div>
+                    <div style="font-size:1.3rem;color:#ffc107;margin:4px 0;">
+                        @for($i=1;$i<=5;$i++)
+                            <span>{{ $i <= round($avgRating) ? '★' : '☆' }}</span>
+                        @endfor
+                    </div>
+                    @else
+                    <div style="font-size:2rem;font-weight:700;color:#adb5bd;">—</div>
+                    @endif
+                    <div style="font-size:.72rem;text-transform:uppercase;font-weight:700;color:#6c757d;letter-spacing:.05em;margin-top:6px;">Rata-rata Rating</div>
+                </div>
+                <div class="row text-center" style="font-size:.82rem;">
+                    <div class="col-6">
+                        <div style="font-size:1.3rem;font-weight:800;">{{ $ratedCount }}</div>
+                        <div style="font-size:.7rem;color:#6c757d;text-transform:uppercase;">Dinilai</div>
+                    </div>
+                    <div class="col-6">
+                        <div style="font-size:1.3rem;font-weight:800;">{{ $participationRate }}%</div>
+                        <div style="font-size:.7rem;color:#6c757d;text-transform:uppercase;">Partisipasi</div>
+                    </div>
+                </div>
+                @if($autoRated > 0)
+                <div style="text-align:center;margin-top:8px;">
+                    <span style="background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;border-radius:999px;font-size:.72rem;padding:2px 10px;">
+                        <i class="fas fa-robot mr-1"></i>{{ $autoRated }} auto-rated
+                    </span>
+                </div>
+                @endif
+            </div>
+
+            {{-- Distribution --}}
+            <div class="col-md-3 mb-3">
+                <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6c757d;margin-bottom:10px;">Distribusi Bintang</div>
+                @php $maxDist = max(1, max($ratingDist)); @endphp
+                @foreach(array_reverse([1,2,3,4,5]) as $star)
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;font-size:.82rem;">
+                    <span style="min-width:20px;text-align:right;font-weight:600;">{{ $star }}</span>
+                    <span style="color:#ffc107;font-size:.9rem;">★</span>
+                    <div style="flex:1;background:#f0f4f8;border-radius:999px;height:6px;overflow:hidden;">
+                        <div style="height:6px;border-radius:999px;background:#ffc107;width:{{ $ratingDist[$star] > 0 ? round($ratingDist[$star]/$maxDist*100) : 0 }}%;transition:width .4s;"></div>
+                    </div>
+                    <span style="min-width:24px;font-weight:700;color:#495057;">{{ $ratingDist[$star] }}</span>
+                </div>
+                @endforeach
+            </div>
+
+            {{-- Recent feedback with text --}}
+            <div class="col-md-6 mb-3">
+                <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6c757d;margin-bottom:10px;">Komentar Terbaru</div>
+                @forelse($recentFeedback as $fb)
+                <div style="background:#fffbeb;border-left:3px solid #ffc107;border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:.83rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                        <span style="font-weight:700;color:#18263f;">{{ $fb->reporter_name }}</span>
+                        <span style="color:#ffc107;font-size:.9rem;">{{ str_repeat('★', $fb->rating) }}{{ str_repeat('☆', 5 - $fb->rating) }}</span>
+                    </div>
+                    <div style="color:#495057;line-height:1.5;">"{{ $fb->feedback_text }}"</div>
+                    <div style="font-size:.72rem;color:#adb5bd;margin-top:4px;">{{ $fb->feedback_at?->format('d M Y H:i') }} — {{ $fb->typeLabel() }}</div>
+                </div>
+                @empty
+                <div style="color:#adb5bd;font-size:.84rem;padding:16px 0;text-align:center;">Belum ada komentar dari pengguna.</div>
+                @endforelse
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')

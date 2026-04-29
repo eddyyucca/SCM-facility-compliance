@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Complaint;
+use App\Models\HrRequest;
 use App\Models\PushSubscription;
 use Illuminate\Support\Facades\Log;
 use Minishlink\WebPush\Subscription;
@@ -23,8 +24,11 @@ class WebPushService
             return;
         }
 
+        // superadmin + ga (all GA types) + role yang sesuai tipe complaint
         $subscriptions = PushSubscription::query()
-            ->whereHas('user', fn ($query) => $query->where('role', 'superadmin')->orWhere('role', $complaint->type))
+            ->whereHas('user', fn ($q) => $q->where('role', 'superadmin')
+                ->orWhere('role', 'ga')
+                ->orWhere('role', $complaint->type))
             ->get();
 
         if ($subscriptions->isEmpty()) {
@@ -88,6 +92,85 @@ class WebPushService
             Log::warning('Web push notification failed.', [
                 'endpoint' => $endpoint,
                 'reason' => $report->getReason(),
+            ]);
+
+            if ($storedSubscription && in_array($report->getResponse()?->getStatusCode(), [404, 410], true)) {
+                $storedSubscription->delete();
+            }
+        }
+    }
+
+    public function sendHrRequestCreated(HrRequest $hrRequest): void
+    {
+        if (!$this->isConfigured()) {
+            return;
+        }
+
+        // superadmin + hr role saja — GA tidak menerima notif HR
+        $subscriptions = PushSubscription::query()
+            ->whereHas('user', fn ($q) => $q->where('role', 'superadmin')
+                ->orWhere('role', 'hr'))
+            ->get();
+
+        if ($subscriptions->isEmpty()) {
+            return;
+        }
+
+        $payload = json_encode([
+            'title' => 'Laporan HR Baru',
+            'body'  => sprintf(
+                '%s • %s • %s',
+                $hrRequest->ticket_number,
+                $hrRequest->service_type,
+                $hrRequest->employee_name
+            ),
+            'icon'  => asset('icons/icon-192.png'),
+            'badge' => asset('icons/icon-192.png'),
+            'tag'   => 'hr-' . $hrRequest->id,
+            'url'   => route('hr.requests.show', $hrRequest),
+            'data'  => [
+                'hr_request_id' => $hrRequest->id,
+                'ticket_number' => $hrRequest->ticket_number,
+            ],
+        ], JSON_UNESCAPED_SLASHES);
+
+        $webPush = new WebPush([
+            'VAPID' => [
+                'subject'    => config('services.webpush.subject'),
+                'publicKey'  => config('services.webpush.public_key'),
+                'privateKey' => config('services.webpush.private_key'),
+            ],
+        ]);
+
+        $webPush->setReuseVAPIDHeaders(true);
+
+        foreach ($subscriptions as $subscription) {
+            $webPush->queueNotification(
+                Subscription::create([
+                    'endpoint'        => $subscription->endpoint,
+                    'publicKey'       => $subscription->public_key,
+                    'authToken'       => $subscription->auth_token,
+                    'contentEncoding' => $subscription->content_encoding,
+                ]),
+                $payload,
+                ['urgency' => 'high']
+            );
+        }
+
+        foreach ($webPush->flush() as $report) {
+            $endpoint = $report->getRequest()->getUri()->__toString();
+            $storedSubscription = $subscriptions->firstWhere('endpoint', $endpoint);
+
+            if ($report->isSuccess()) {
+                if ($storedSubscription) {
+                    $storedSubscription->forceFill(['last_used_at' => now()])->save();
+                }
+                continue;
+            }
+
+            Log::warning('Web push HR notification failed.', [
+                'endpoint' => $endpoint,
+                'reason'   => $report->getReason(),
             ]);
 
             if ($storedSubscription && in_array($report->getResponse()?->getStatusCode(), [404, 410], true)) {
