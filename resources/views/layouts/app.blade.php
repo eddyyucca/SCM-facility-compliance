@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="utf-8">
@@ -603,6 +603,21 @@
                             <a href="{{ route('complaints.index', ['type' => 'laundry']) }}"
                                class="nav-link {{ request()->routeIs('complaints.*') && request('type') === 'laundry' ? 'active' : '' }}">
                                 <i class="nav-icon fas fa-tshirt"></i><p>GA Laundry</p>
+                            </a>
+                        </li>
+                        @endif
+
+                        @if(in_array($u->role, ['superadmin','ga']))
+                        <li class="nav-item">
+                            <a href="{{ route('laundry.dashboard') }}"
+                               class="nav-link {{ request()->routeIs('laundry.dashboard') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-tools"></i><p>Equipment Laundry</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('laundry.transactions.index') }}"
+                               class="nav-link {{ request()->routeIs('laundry.transactions.*') ? 'active' : '' }}">
+                                <i class="nav-icon fas fa-truck-loading"></i><p>Pergerakan Mess</p>
                             </a>
                         </li>
                         @endif

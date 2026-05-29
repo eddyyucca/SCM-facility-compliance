@@ -7,11 +7,13 @@ use App\Http\Controllers\ComplaintPhotoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HrAttachmentController;
 use App\Http\Controllers\HrRequestController;
+use App\Http\Controllers\LaundryTransactionController;
 use App\Http\Controllers\MenuPermissionController;
 use App\Http\Controllers\SlaSettingController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\ReporterController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\LaundryEquipmentController;
 use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +62,33 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/hr-attachments/{filename}', [HrAttachmentController::class, 'show'])->name('hr.attachments.show');
         Route::patch('/hr-requests/{hrRequest}/status', [HrRequestController::class, 'updateStatus'])->name('hr.requests.status');
         Route::get('/api/hr-dashboard-stats', [HrRequestController::class, 'dashboardStats'])->name('api.hr-dashboard-stats');
+    });
+
+    // Laundry Equipment — superadmin & ga
+    Route::middleware('role:superadmin,ga')->group(function () {
+        Route::get('/laundry-equipment', [LaundryEquipmentController::class, 'dashboard'])->name('laundry.dashboard');
+
+        // Redirect link lama jika ada di bookmark/history browser
+        Route::get('/laundry-equipment/areas', fn() => redirect()->route('laundry.dashboard'))->name('laundry.areas');
+        Route::get('/laundry-equipment/equipment', fn() => redirect()->route('laundry.dashboard'))->name('laundry.equipment.index');
+
+        // Laundry Movement per Mess
+        Route::get('/laundry-movement', [LaundryTransactionController::class, 'index'])->name('laundry.transactions.index');
+        Route::post('/laundry-movement/mess', [LaundryTransactionController::class, 'storeMess'])->name('laundry.mess.store');
+        Route::post('/laundry-movement/transactions', [LaundryTransactionController::class, 'storeTransaction'])->name('laundry.transactions.store');
+        Route::put('/laundry-movement/transactions/{transaction}', [LaundryTransactionController::class, 'updateTransaction'])->name('laundry.transactions.update');
+
+        // Area CRUD (inline from dashboard)
+        Route::post('/laundry-equipment/areas', [LaundryEquipmentController::class, 'storeArea'])->name('laundry.areas.store');
+        Route::put('/laundry-equipment/areas/{area}', [LaundryEquipmentController::class, 'updateArea'])->name('laundry.areas.update');
+        Route::delete('/laundry-equipment/areas/{area}', [LaundryEquipmentController::class, 'destroyArea'])->name('laundry.areas.destroy');
+
+        // Equipment row CRUD (inline from dashboard)
+        Route::post('/laundry-equipment/equipment', [LaundryEquipmentController::class, 'storeEquipment'])->name('laundry.equipment.store');
+        Route::put('/laundry-equipment/equipment/{equipment}', [LaundryEquipmentController::class, 'updateEquipment'])->name('laundry.equipment.update');
+        Route::delete('/laundry-equipment/equipment/{equipment}', [LaundryEquipmentController::class, 'destroyEquipment'])->name('laundry.equipment.destroy');
+
+        Route::get('/api/laundry-stats', [LaundryEquipmentController::class, 'apiStats'])->name('api.laundry-stats');
     });
 
     // Administrasi — superadmin only

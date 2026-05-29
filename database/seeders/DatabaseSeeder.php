@@ -33,8 +33,10 @@ class DatabaseSeeder extends Seeder
         // ── SLA Settings ──
         $this->call(SlaSettingSeeder::class);
 
-        // ── Dummy Complaints ──
-        $this->seedComplaints();
+        // ── Dummy Complaints (local dev only) ──
+        if (app()->environment('local')) {
+            $this->seedComplaints();
+        }
     }
 
     private function seedComplaints(): void
